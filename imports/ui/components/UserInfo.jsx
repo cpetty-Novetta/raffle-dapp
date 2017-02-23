@@ -12,6 +12,7 @@ export default class UserInfo extends Component {
             userCompany: '',
             userReason: '',
             currentStage: '',
+            userTokens: 0,
         };
 
         this.getUserInfo.bind(this);
@@ -24,8 +25,12 @@ export default class UserInfo extends Component {
             var deployed = instance;
             return deployed.getUserInfo(userAddress, {from: coinbase});
         }).then((result) => {
-            console.log(result[0].toNumber());
-            console.log(result[1]);
+            this.setState({
+                userTickets: result[0].toNumber(),
+                userTokens: result[1].toNumber(),
+            })
+            // console.log(result[0].toNumber());
+            // console.log(result[1]);
         });
     }
 
@@ -37,9 +42,13 @@ export default class UserInfo extends Component {
         
         return (
             <container className="container">
+                <hr />
                 <div className="user-info-div">
-                    
+                    <h2>Registered Tickets: {this.state.userTickets}</h2>
+                    <h2>Tokens Won: {this.state.userTokens}</h2>
+
                 </div>
+                <hr />
             </container>
         )
     }

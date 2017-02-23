@@ -12,10 +12,10 @@ contract_address = '0xd2e67ec656c8eadf3624c5a2f25b621ba019a597';
 // var result = raffle.getFundBalance()
 // console.log(result)
 
-var contract = require("truffle-contract");
-Raffle = contract(json);
+// var contract = require("truffle-contract");
+// Raffle = contract(json);
 
-Raffle.setProvider(new Web3.providers.HttpProvider('http://localhost:8545'));
+// Raffle.setProvider(new Web3.providers.HttpProvider('http://localhost:8545'));
 
 web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 web3.eth.getAccounts((err, accs) => {

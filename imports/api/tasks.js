@@ -92,5 +92,22 @@ Meteor.methods({
             owner: this.userId,
             username: Meteor.users.findOne(this.userId).username,
         });
+    },
+    'admin.fundAddress'(addr) {
+        check(addr, String);
+
+        web3.eth.sendTransaction({
+            from: web3.eth.coinbase,
+            to: addr,
+            value: web3.toWei(1,'ether')
+        }, function(err, result) {
+            if (err) throw err;
+
+            web3.eth.getBalance(addr, function(err, balance) {
+                console.log("Current Balance: ", balance);
+            });
+        });
+
     }
+
 });

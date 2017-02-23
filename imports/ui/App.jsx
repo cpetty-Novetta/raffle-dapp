@@ -21,6 +21,8 @@ class App extends Component {
         this.state = {
             hideCompleted: false,
         };
+
+        this.renderAdmin.bind(this);
     }
 
     handleSubmit(event) {
@@ -65,6 +67,18 @@ class App extends Component {
         });
     }
 
+    renderAdmin() {
+        const currentUserName = this.props.currentUser && this.props.currentUser.username;
+        if (currentUserName === 'cpetty') {
+            
+            return (
+                <div className="adminDiv">
+                    <DistributeFunds />
+                </div> 
+            )
+        }
+    }
+
     render() {
         return (
             <div className='container'>
@@ -83,27 +97,20 @@ class App extends Component {
 
                     <AccountsUIWrapper />
 
-
                     <RaffleStats />
-                    <UserInfo currentUser={this.props.currentUser}/>
-                    <RegisterForTickets currentUser={this.props.currentUser}/>
-                    <DistributeFunds />
 
-                    {/* Insert form for adding tasks */}
-                    {/*{ this.props.currentUser ?
-                        <form className="new-task" onSubmit={this.handleSubmit.bind(this)} >
-                            <input
-                                type="text"
-                                ref="textInput"
-                                placeholder="Type to add new tasks"
-                            />
-                        </form> : ''
-                    }*/}
+                    {/* this only shows if user is logged into an account */}
+                    {this.props.currentUser ?
+                        <div className="userDiv">
+                            <UserInfo currentUser={this.props.currentUser}/>
+                            {this.props.currentUser.registered ? '' :
+                                <RegisterForTickets currentUser={this.props.currentUser}/>    
+                            }
+                        </div> : ''
+                    }
+
+                    {this.renderAdmin()}
                 </header>
-
-                {/*<ul>
-                    {this.renderTasks()}
-                </ul>*/}
             </div>
         );
     }
@@ -119,6 +126,7 @@ App.PropTypes = {
 export default createContainer(() => {
     Meteor.subscribe('tasks');
     Meteor.subscribe('tickets');
+    Meteor.subscribe('userData');
 
     return {
         tasks: Tasks.find({}, {sort: { createdAt: -1 } }).fetch(),
