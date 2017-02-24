@@ -1,8 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
 
-import { keystore, txutils } from 'eth-lightwallet';
+
 
 export default class RegisterForTickets extends Component {
     constructor(props) {
@@ -16,7 +17,7 @@ export default class RegisterForTickets extends Component {
 
         this.handleSubmit.bind(this);
         this.registerUser.bind(this);
-        this.getEthAddress.bind(this);
+
     }
 
     handleSubmit(event) {
@@ -24,65 +25,50 @@ export default class RegisterForTickets extends Component {
 
         // Find the text field via the React ref
         const CompanyText = ReactDOM.findDOMNode(this.refs.userCompany).value.trim();
+        Session.set('userCompany', CompanyText);
         const ReasonText =  ReactDOM.findDOMNode(this.refs.userReason).value.trim();
+        Session.set('userReason', ReasonText);
 
         // For our Novetta Database reasons
         Meteor.call('user.insertCompany', this.props.currentUser._id, CompanyText);
-        Meteor.call('user.insertReason', this.props.currentUser._id, ReasonText);
-        Meteor.call('ticket.register', CompanyText, ReasonText);
 
-        // To call smart contract
-        user_props = {
-            company: CompanyText,
-            reason: ReasonText
-        };
-        if (! this.props.currentUser.addressRegistered) {
-            console.log("getting new Ethereum Address");
-            this.getEthAddress();
-        }
-        this.registerUser(user_props);
+        Meteor.call('user.insertReason', this.props.currentUser._id, ReasonText);
+
+        
+
+        this.registerUser();
+        
+        
 
         // Clear form
         ReactDOM.findDOMNode(this.refs.userCompany).value = '';
-    }
-
-    getEthAddress() {
-        const seed = this.props.currentUser && this.props.currentUser._id;
-
-        keystore.createVault({
-            password: seed,
-
-        }, function(err, ks) {
-            if (err) throw err;
-            ks.keyFromPassword(seed, function(err, pwDerivedKey) {
-                if (err) throw err;
-
-                ks.generateNewAddress(pwDerivedKey, 1);
-                var addresses = ks.getAddresses();
-                var addr = '0x' + addresses[0].valueOf();
-                console.log("seed: ", seed);
-                console.log("address: ", addr);
-                console.log("address valueOf: ", addr);
-                Meteor.call('user.insertAddress',seed, addr);
-                Meteor.call('admin.fundAddress', addr);
-                
-            });
-        });
+        ReactDOM.findDOMNode(this.refs.userReason).value = '';
     }
 
     
 
-    registerUser (user_props) {
-        var userAddress = this.props.currentUser.address;
+    
+
+    registerUser () {
+        var userAddress = Session.get('userAddress');
         console.log('registered address: ', userAddress);
         var username = this.props.currentUser.username;
+        console.log('sent username: ', username);
         var email = this.props.currentUser.emails[0].address;
-        var companyName = this.props.currentUser.companyRegistered;
-        var reasonHere = this.props.currentUser.reasonRegistered;
+        console.log('sent email: ', email);
+        var companyName = Session.get('userCompany');
+        console.log('sent company text: ', companyName);
+        var reasonHere = Session.get('userReason');
+        console.log('sent reason text: ', reasonHere);
 
         var deployed;
         Raffle.deployed().then((instance) => {
             var deployed = instance;
+            console.log('registered address2: ', userAddress);
+            console.log('sent username2: ', username);
+            console.log('sent email2: ', email);
+            console.log('sent company text2: ', companyName);
+            console.log('sent reason text2: ', reasonHere);
             return instance.registerUser(userAddress, username, email, companyName, reasonHere, {from: coinbase, gas: 500000});
         }).then((result) => {
             console.log("logs: ", result.logs);
@@ -97,8 +83,7 @@ export default class RegisterForTickets extends Component {
         // if (reasonHere.length > 0) {
         //     Meteor.call('user.setRegistered',this.props.currentUser._id, 'reasonRegistered', true);
         // }
-        console.log(this.props.currentUser._id);
-        Meteor.call('user.setRegistered',this.props.currentUser._id, 'registered', true);
+        Meteor.call('user.setRegistered', this.props.registeredUser._id, 'registered', true);
     }
 
     componentWillMount() {
@@ -106,13 +91,18 @@ export default class RegisterForTickets extends Component {
  
     render() {
         
+
         return (
             <container className="register-container">
                 <hr />
                 <div className="registered-div">
                     <h2>Currently Registered Information:</h2>
-                    <p>Username: {this.props.currentUser.username}</p>
-                    <p>Email: {this.props.currentUser.emails[0].address}</p>
+                    {this.props.registeredUser.address ?  
+                        <p>Ethereum Address: {this.props.registeredUser.address}</p> :
+                        <p>Getting Ethereum Address</p>
+                    }  
+                    <p>Username: {this.props.registeredUser.username}</p>
+                    <p>Email: {this.props.registeredUser.email}</p>
                 </div>
                 <div className="register-div" >
                     <h2>Enter more information for more tickets!</h2>
@@ -138,5 +128,5 @@ export default class RegisterForTickets extends Component {
 }
 
 RegisterForTickets.PropTypes = {
-    currentUser: PropTypes.object.isRequired,
+    registeredUser: PropTypes.object.isRequired,
 }

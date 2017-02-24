@@ -1,24 +1,15 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
+import { Session } from 'meteor/session';
 
 export const Tasks = new Mongo.Collection('tasks');
-export const Tickets = new Mongo.Collection('tickets');
 
 if (Meteor.isServer) {
     // This code only runs on the server
     // Only publish tasks that are public or belong to current user
     Meteor.publish('tasks', function tasksPublication() {
         return Tasks.find({
-            $or: [
-                { private: { $ne: true } },
-                { owner: this.userId },
-            ],
-        });
-    });
-
-    Meteor.publish('tickets', function ticketsPublication() {
-        return Tickets.find({
             $or: [
                 { private: { $ne: true } },
                 { owner: this.userId },
@@ -77,25 +68,10 @@ Meteor.methods({
 
         Tasks.update(taskId, { $set: { private: setToPrivate } });
     },
-    'ticket.register'(userCompany, userReason) {
-        check(userCompany, String);
-        check(userReason, String);
-
-        if (! this.userId){
-            throw new Meteor.Error('not-authorized');
-        }
-
-        Tickets.insert({
-            company: userCompany,
-            reason: userReason,
-            createdAt:  new Date(),
-            owner: this.userId,
-            username: Meteor.users.findOne(this.userId).username,
-        });
-    },
-    'admin.fundAddress'(addr) {
+    'admin.fundAddress'(userId, addr) {
         check(addr, String);
 
+        if (! this.isFunded) {
         web3.eth.sendTransaction({
             from: web3.eth.coinbase,
             to: addr,
@@ -107,7 +83,9 @@ Meteor.methods({
                 console.log("Current Balance: ", balance);
             });
         });
+        }
 
+        Meteor.users.update(userId, { $set: { isFunded: true } });
     }
 
 });

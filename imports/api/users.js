@@ -1,28 +1,40 @@
 import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
+import { Mongo } from 'meteor/mongo';
+
+export const RegisteredUsers = new Mongo.Collection('registeredUsers');
 
 if (Meteor.isServer) {
     // This code only runs on the server
     // Only publish tasks that are public or belong to current user
-
-    Meteor.publish('userData', function () {
-        if (this.userId) {
-            return Meteor.users.find(
-                {_id: this.userId},
-                {fields: {
-                    'address': 1, 
-                    'addressRegistered': 1,
-                    'reasonRegistered': 1,
-                    'companyRegistered': 1,
-                    'registered': 1,
-                }});
-        } else {
-            this.ready();
-        }
+    Meteor.publish('registeredUsers', function registeredUsersPublication() {
+            // return RegisteredUsers.find(
+            //     {_id: this.userId},
+            //     {fields: {
+            //         'address': 1, 
+            //         'createdAt': 1,
+            //         'registered': 1,
+            //         'company': 1,
+            //         'reason': 1,
+            //         'email': 1, 
+            //         'username': 1,
+            //         '_id': 1,
+            //     }});
+            // console.log(this.userId);
+            return RegisteredUsers.find();
     });
 }
 
 Meteor.methods({
+    'user.insertUser'(userId) {
+        check(userId, String);
+
+        RegisteredUsers.insert({
+            createdAt: new Date(),
+            _id: userId,
+            username: Meteor.users.findOne(this.userId).username,
+        });   
+    },
     'user.insertAddress'(userId, addr) {
         check(userId, String);
         check(addr, String);
@@ -31,12 +43,10 @@ Meteor.methods({
             throw new Meteor.Error('not-authorized');
         }
 
-        Meteor.users.update(userId, { 
-            $set: { 
-                address: addr,
-                addressRegistered: true,
-            } 
+        RegisteredUsers.update(userId, {
+            $set: { account: addr } 
         });   
+        console.log('Updated Ethereum Address to ', addr);
     },
     'user.insertCompany'(userId, company) {
         check(userId, String);
@@ -46,7 +56,8 @@ Meteor.methods({
             throw new Meteor.Error('not-authorized');
         }
 
-        Meteor.users.update(userId, { $set: { companyRegistered: company } });   
+        RegisteredUsers.update(userId, { $set: { company: company } });   
+        console.log('Updated user company text to ', company);
     },
     'user.insertReason'(userId, reason) {
         check(userId, String);
@@ -56,7 +67,8 @@ Meteor.methods({
             throw new Meteor.Error('not-authorized');
         }
 
-        Meteor.users.update(userId, { $set: { reasonRegistered: reason } });   
+        RegisteredUsers.update(userId, { $set: { reason: reason } });   
+        console.log('Updated user reason text to ', reason)
     },
     'user.setRegistered'(userId, registeredItem, registeredValue) {
         check(userId, String);
@@ -69,7 +81,8 @@ Meteor.methods({
 
         var obj = {};
         obj[registeredItem] = registeredValue;
-        Meteor.users.update(userId, { $set: obj });
+        RegisteredUsers.update(userId, { $set: obj });
+        console.log('Updated users ', registeredItem, ' text to ', registeredValue );
     },
 
 });

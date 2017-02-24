@@ -41,7 +41,6 @@ contract JailbreakRaffle {
     event userRegister(string _username, address _address);
     
     struct User {
-        address addr;
         string email;
         string username;
         string companyName;
@@ -70,46 +69,29 @@ contract JailbreakRaffle {
     //     - phone - 1 ticket
     //     - current employer - 1 ticket
     //     - how you heard - 1 ticket
-    function registerUser (address userAddress, string username, string email, string companyName, string reasonHere) public constant atStage(Stages.Registration) returns (uint status) {
-        status = 0;
-        uint ticketsThisPass = 0;
-        for (var i = 0; i < userList.length; i++) {
-            if (users[userAddress].addr ==  userAddress) {
-                // This is a registered user, status = 2 means updating.
-                status = 2;
-            }
-        }
-        if (status == 0) {
-            // New user, increment tickets
-            ticketsThisPass += 1;
-            users[userAddress].numTickets = 0;
-            users[userAddress].addr = userAddress;
-            users[userAddress].username = username;
-            users[userAddress].email = email;
-            if (bytes(email).length != 0) {
-                ticketsThisPass += 1;
-                status = 1;
-            } 
-            // Add user address to list for later iteration
-            userList.push(userAddress);
-            mainRaffle.numUsers += 1;
-            userRegister(username, userAddress);
-        }
-        if (status == 1 || status == 2) {
+    function registerUser (address userAddress, string username, string email, string companyName, string reasonHere) public atStage(Stages.Registration) {
+        users[userAddress].numTickets = 0;
+        users[userAddress].username = username;
+        users[userAddress].email = email;
+        if (bytes(email).length != 0) {
+            users[userAddress].numTickets += 1;
+        }     
         users[userAddress].companyName = companyName;
         if (bytes(companyName).length != 0) {
-            ticketsThisPass += 1;
-        } 
+            users[userAddress].numTickets += 1;
+        }
         users[userAddress].reasonHere = reasonHere;
         if (bytes(reasonHere).length != 0) {
-            ticketsThisPass += 1;
+            users[userAddress].numTickets += 1;
         } 
-        }
         
-        users[userAddress].numTickets += ticketsThisPass;
-        mainRaffle.numTotalTickets += ticketsThisPass;
         
-        return (status);
+        mainRaffle.numTotalTickets += users[userAddress].numTickets;
+        
+        // Add user address to list for later iteration
+        userList.push(userAddress);
+        mainRaffle.numUsers += 1;
+        userRegister(username, userAddress);
     }
     
     function getNumUsers() public constant returns (uint) {

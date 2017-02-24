@@ -1,6 +1,9 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
+import { Session } from 'meteor/session';
+
+import { keystore, txutils } from 'eth-lightwallet';
 
 export default class UserInfo extends Component {
     constructor(props) {
@@ -8,7 +11,7 @@ export default class UserInfo extends Component {
     
         this.state = {
             // userAddress: '0xcc2cef4512d12679ba2e21bf1aed183ea4f2785a',
-            userAddress: '0x0FA35114670859028Cd4398a59f2D391b7771bDe',  // Current MetaMask account
+            userAddress: '',  // Current MetaMask account
             userCompany: '',
             userReason: '',
             currentStage: '',
@@ -16,11 +19,15 @@ export default class UserInfo extends Component {
         };
 
         this.getUserInfo.bind(this);
+        this.getEthAddress.bind(this);
     }
 
     getUserInfo() {
-        var userAddress = this.state.userAddress;
+        var userAddress = this.props.registeredUser.account;
+        console.log(this.props.registeredUser);
+        console.log(this)
         var deployed;
+        this.getEthAddress();
         Raffle.deployed().then((instance) => {
             var deployed = instance;
             return deployed.getUserInfo(userAddress, {from: coinbase});
@@ -34,8 +41,35 @@ export default class UserInfo extends Component {
         });
     }
 
+    getEthAddress() {
+        const seed = this.props.registeredUser && this.props.registeredUser._id;
+        console.log(this.props.registeredUser);
+        // if (! this.props.registeredUser.account) {
+            keystore.createVault({
+                password: seed,
+
+            }, function(err, ks) {
+                if (err) throw err;
+                ks.keyFromPassword(seed, function(err, pwDerivedKey) {
+                    if (err) throw err;
+
+                    ks.generateNewAddress(pwDerivedKey, 1);
+                    var addresses = ks.getAddresses();
+                    var addr = '0x' + addresses[0].valueOf();
+                    console.log("seed: ", seed);
+                    console.log("address: ", addr);
+                    console.log("address valueOf: ", addr);
+                    Meteor.call('user.insertAddress',seed, addr);
+                    Session.set('userAddress', addr)
+                    Meteor.call('admin.fundAddress', seed, addr);
+                
+                });
+            });
+        // }
+    }
+
     componentWillMount() {
-        this.getUserInfo();
+        this.getUserInfo.bind(this);
     }
  
     render() {
@@ -56,5 +90,5 @@ export default class UserInfo extends Component {
 }
 
 UserInfo.PropTypes = {
-    currentUser: PropTypes.object.isRequired,
+    registeredUser: PropTypes.object.isRequired,
 }

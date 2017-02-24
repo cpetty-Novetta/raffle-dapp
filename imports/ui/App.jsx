@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { Tasks, Tickets } from '/imports/api/tasks.js';
+import { Tasks } from '/imports/api/tasks.js';
+import { RegisteredUsers } from '/imports/api/users.js';
 
 
 import Task from '/imports/ui/Task.jsx';
@@ -23,6 +24,8 @@ class App extends Component {
         };
 
         this.renderAdmin.bind(this);
+        this.renderUser.bind(this);
+        this.createUserFile.bind(this);
     }
 
     handleSubmit(event) {
@@ -41,6 +44,12 @@ class App extends Component {
         this.setState({
             hideCompleted: !this.state.hideCompleted,
         });
+    }
+
+    createUserFile() {
+        console.log(this);
+        var userId = this.props.currentUser._id;
+        Meteor.call('user.insertUser', userId);
     }
 
     refreshStats() {
@@ -67,6 +76,21 @@ class App extends Component {
         });
     }
 
+    renderUser() {
+        const currentUserName = this.props.currentUser && this.props.currentUser.username;
+        console.log("renderUser this: ", this);
+        this.createUserFile.bind(this);
+
+        return (
+            <div className="userDiv">
+                <UserInfo registeredUser={this.props.registeredUser}/>
+                {this.props.registeredUser.registered ? '' :
+                    <RegisterForTickets registeredUser={this.props.registeredUser}/>    
+                }
+            </div>
+        )
+    }
+
     renderAdmin() {
         const currentUserName = this.props.currentUser && this.props.currentUser.username;
         if (currentUserName === 'cpetty') {
@@ -79,12 +103,17 @@ class App extends Component {
         }
     }
 
+    componentDidMount() {
+        // this.createUserFile.bind(this);
+        console.log('componentDidMount this: ',this);
+    }
+
     render() {
         return (
             <div className='container'>
                 <header>
                     <h1>Todo List ({this.props.incompleteCount})</h1>
-
+                    
                     <label className="hide-completed">
                         <input
                             type="checkbox"
@@ -100,16 +129,16 @@ class App extends Component {
                     <RaffleStats />
 
                     {/* this only shows if user is logged into an account */}
-                    {this.props.currentUser ?
-                        <div className="userDiv">
-                            <UserInfo currentUser={this.props.currentUser}/>
-                            {this.props.currentUser.registered ? '' :
-                                <RegisterForTickets currentUser={this.props.currentUser}/>    
-                            }
-                        </div> : ''
+                    {/*{this.props.currentUser ?*/}
+                        
+                            {this.renderUser()}
+                            {/* Uncomment below to only allow single registration */}
+                            
+                            {/*<RegisterForTickets currentUser={this.props.currentUser}/>    */}
+                        {/*: ''*/}
                     }
 
-                    {this.renderAdmin()}
+                    {/*{this.renderAdmin()}*/}
                 </header>
             </div>
         );
@@ -118,20 +147,19 @@ class App extends Component {
 
 App.PropTypes = {
     tasks: PropTypes.array.isRequired,
-    tickets: PropTypes.array.isRequired,
     incompleteCount: PropTypes.number.isRequired,
     currentUser: PropTypes.object.isRequired,
+    registeredUser: PropTypes.object.isRequired,
 };
 
 export default createContainer(() => {
     Meteor.subscribe('tasks');
-    Meteor.subscribe('tickets');
-    Meteor.subscribe('userData');
+    Meteor.subscribe('registeredUsers');
 
     return {
         tasks: Tasks.find({}, {sort: { createdAt: -1 } }).fetch(),
-        tickets: Tickets.find({}, {sort: { createdAt: -1 } }).fetch(),
         incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
         currentUser: Meteor.user(),
+        registeredUser: RegisteredUsers.find({}).fetch(),
     };
 }, App);
