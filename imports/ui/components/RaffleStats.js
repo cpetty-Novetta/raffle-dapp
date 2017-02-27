@@ -9,6 +9,10 @@ export default class RaffleStats extends Component {
             numUsers: 0,
             numTickets: 0,
         };
+
+        this.getFundAmount.bind(this);
+        this.getNumTickets.bind(this);
+        this.getNumUsers.bind(this);
     }
 
     getNumUsers () {
@@ -47,10 +51,19 @@ export default class RaffleStats extends Component {
         })
     }
 
-    componentWillMount() {
-        this.getFundAmount();
-        this.getNumUsers();
-        this.getNumTickets();
+    componentDidMount() {
+        const refreshStats = () => {
+            this.getFundAmount();
+            this.getNumUsers();
+            this.getNumTickets();
+        }
+        refreshStats()
+
+        setInterval(() => {
+            refreshStats();
+            return refreshStats
+        }, 5000)
+
     }
  
     render() {

@@ -16,6 +16,7 @@ export default class UserInfo extends Component {
             userReason: '',
             currentStage: '',
             userTokens: 0,
+            userTickets: 0,
         };
 
         this.getUserInfo.bind(this);
@@ -23,28 +24,27 @@ export default class UserInfo extends Component {
     }
 
     getUserInfo() {
-        var userAddress = this.props.registeredUser.account;
-        console.log(this.props.registeredUser);
-        console.log(this)
+        var userAddress = this.props.currentUser.account;
+        console.log("Entering getUserInfo(), this: ", this);
         var deployed;
-        this.getEthAddress();
         Raffle.deployed().then((instance) => {
             var deployed = instance;
-            return deployed.getUserInfo(userAddress, {from: coinbase});
+            return deployed.getUserInfo(userAddress, {from: userAddress});
         }).then((result) => {
             this.setState({
                 userTickets: result[0].toNumber(),
                 userTokens: result[1].toNumber(),
             })
-            // console.log(result[0].toNumber());
-            // console.log(result[1]);
+            console.log(result[0].toNumber());
+            console.log(result[1]);
         });
     }
 
     getEthAddress() {
-        const seed = this.props.registeredUser && this.props.registeredUser._id;
-        console.log(this.props.registeredUser);
-        // if (! this.props.registeredUser.account) {
+        const seed = this.props.currentUser && this.props.currentUser._id;
+        console.log(this.props.currentUser);
+        console.log(! this.props.currentUser.account);
+        if ( this.props.currentUser && !this.props.currentUser.account) {
             keystore.createVault({
                 password: seed,
 
@@ -60,27 +60,58 @@ export default class UserInfo extends Component {
                     console.log("address: ", addr);
                     console.log("address valueOf: ", addr);
                     Meteor.call('user.insertAddress',seed, addr);
-                    Session.set('userAddress', addr)
+                    if (Session.get('userAddress') === '') {
+                        Session.set('userAddress', addr)
+                    }
                     Meteor.call('admin.fundAddress', seed, addr);
-                
+                    console.log("keyFromPassword this: ", this);
                 });
             });
-        // }
+            
+                console.log(Session.get('userAddress'));
+            
+        }
+    }
+    
+    componentDidMount() {
+        const refreshStats = () => {
+            this.getUserInfo();
+        }
+
+        refreshStats();
+
+        setInterval(() => {
+            refreshStats();
+            return refreshStats
+        }, 5000)
     }
 
-    componentWillMount() {
-        this.getUserInfo.bind(this);
-    }
- 
     render() {
-        
+            
         return (
+            
             <container className="container">
                 <hr />
                 <div className="user-info-div">
                     <h2>Registered Tickets: {this.state.userTickets}</h2>
                     <h2>Tokens Won: {this.state.userTokens}</h2>
-
+                </div>
+                <div className="registered-div">
+                    <h2>Currently Registered Information:</h2>
+                    {this.props.currentUser.account ?  
+                        <p>Ethereum Address: {this.props.currentUser.account}</p> :
+                        <button onClick={this.getEthAddress.bind(this)}>Get Ethereum Address</button>
+                    }  
+                    <p>Username: {this.props.currentUser.username}</p>
+                    <p>Email: {this.props.currentUser.emails[0].address}</p>
+                    {this.props.currentUser.company ?
+                        <p>Company: {this.props.currentUser.company}</p> : 
+                        <p className="unregistered">Company unregistered</p>
+                    }
+                    {this.props.currentUser.company ?
+                        <p>Reason here: {this.props.currentUser.reason}</p> : 
+                        <p className="unregistered">Reason unregistered</p>
+                    }
                 </div>
                 <hr />
             </container>
@@ -89,6 +120,4 @@ export default class UserInfo extends Component {
 
 }
 
-UserInfo.PropTypes = {
-    registeredUser: PropTypes.object.isRequired,
-}
+

@@ -50,15 +50,15 @@ export default class RegisterForTickets extends Component {
     
 
     registerUser () {
-        var userAddress = Session.get('userAddress');
+        var userAddress = this.props.currentUser.account;
         console.log('registered address: ', userAddress);
         var username = this.props.currentUser.username;
         console.log('sent username: ', username);
         var email = this.props.currentUser.emails[0].address;
         console.log('sent email: ', email);
-        var companyName = Session.get('userCompany');
+        var companyName = this.props.currentUser.company;
         console.log('sent company text: ', companyName);
-        var reasonHere = Session.get('userReason');
+        var reasonHere = this.props.currentUser.company;
         console.log('sent reason text: ', reasonHere);
 
         var deployed;
@@ -76,34 +76,18 @@ export default class RegisterForTickets extends Component {
             console.log("tx Hash: ", result.tx);
             console.log(result);
         })
-        // USE THESE IF YOU WANT RE-REGISTRATION
-        // if (companyName.length > 0) {
-        //     Meteor.call('user.setRegistered',this.props.currentUser._id, 'companyRegistered', true);
-        // }
-        // if (reasonHere.length > 0) {
-        //     Meteor.call('user.setRegistered',this.props.currentUser._id, 'reasonRegistered', true);
-        // }
-        Meteor.call('user.setRegistered', this.props.registeredUser._id, 'registered', true);
+        Meteor.call('user.insertCompany', this.props.currentUser._id, CompanyName);
+        Meteor.call('user.insertReason', this.props.currentUser._id, RegisteredName);
+        Meteor.call('user.setRegistered', this.props.currentUser._id, 'registered', true);
     }
 
-    componentWillMount() {
-    }
- 
     render() {
         
 
         return (
             <container className="register-container">
                 <hr />
-                <div className="registered-div">
-                    <h2>Currently Registered Information:</h2>
-                    {this.props.registeredUser.address ?  
-                        <p>Ethereum Address: {this.props.registeredUser.address}</p> :
-                        <p>Getting Ethereum Address</p>
-                    }  
-                    <p>Username: {this.props.registeredUser.username}</p>
-                    <p>Email: {this.props.registeredUser.email}</p>
-                </div>
+            
                 <div className="register-div" >
                     <h2>Enter more information for more tickets!</h2>
                     <form className="new-register" onSubmit={this.handleSubmit.bind(this)} >
@@ -125,8 +109,4 @@ export default class RegisterForTickets extends Component {
         )
     }
 
-}
-
-RegisterForTickets.PropTypes = {
-    registeredUser: PropTypes.object.isRequired,
 }

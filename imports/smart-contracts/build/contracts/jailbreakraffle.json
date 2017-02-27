@@ -459,8 +459,32 @@
       "links": {},
       "address": "0xd140698b63fe13ed23005e99ce0a870e0ad7ff70",
       "updated_at": 1488120135640
+    },
+    "1488216835977": {
+      "events": {
+        "0xb9e1558fc873cd2d285721e881c2949e44c7b3eb43d989684114ec57ae712121": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_username",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "_address",
+              "type": "address"
+            }
+          ],
+          "name": "userRegister",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x017e0ae4bdbc122d3e9ce7a1f1075cdea51ca770",
+      "updated_at": 1488230352705
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1488120135640
+  "updated_at": 1488230352705
 }

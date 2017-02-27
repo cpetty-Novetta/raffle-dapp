@@ -21,74 +21,52 @@ class App extends Component {
 
         this.state = {
             hideCompleted: false,
+            registeredUser: false,
+            userCreatedInRegister: false,
+            totTicketsRegistered: 0,
+            userTicketsRegistered: 0,
+            userTokensWon: 0,
+            totUsersRegistered: 0,
         };
 
         this.renderAdmin.bind(this);
         this.renderUser.bind(this);
-        this.createUserFile.bind(this);
-    }
-
-    handleSubmit(event) {
-        event.preventDefault();
-
-        // Find the text field via the React ref
-        const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
-
-        Meteor.call('tasks.insert', text);
-
-        // Clear form
-        ReactDOM.findDOMNode(this.refs.textInput).value = '';
-    }
-
-    toggleHideCompleted() {
-        this.setState({
-            hideCompleted: !this.state.hideCompleted,
-        });
-    }
-
-    createUserFile() {
-        console.log(this);
-        var userId = this.props.currentUser._id;
-        Meteor.call('user.insertUser', userId);
+        // this.createUserFile.bind(this);
     }
 
     refreshStats() {
         // Refresh all contract and user stats after something is called.
     }
 
-    renderTasks() {
-        let filteredTasks = this.props.tasks;
-        if (this.state.hideCompleted) {
-            filteredTasks = filteredTasks.filter(task => !task.checked);
-        }
-        return filteredTasks.map((task) => {
-            const currentUserId = this.props.currentUser && this.props.currentUser._id;
-            const showPrivateButton = task.owner === currentUserId;
-            // const showPrivateButton = true;
-
-            return (
-                <Task 
-                    key={task._id} 
-                    task={task}
-                    showPrivateButton={showPrivateButton}
-                />
-            );
-        });
-    }
-
-    renderUser() {
+    renderUser  ()  {
         const currentUserName = this.props.currentUser && this.props.currentUser.username;
-        console.log("renderUser this: ", this);
-        this.createUserFile.bind(this);
+        console.log("Not currentUser.acount: ",! this.props.currentUser.account);
+        if (this.props.currentUser && ! this.state.userCreatedInRegister) {
+            this.createUserFile();
+            this.setState({
+                userCreatedInRegister: true,
+            })
+        }
+
+        var user_props = this.props.registeredUser.valueOf()
 
         return (
             <div className="userDiv">
-                <UserInfo registeredUser={this.props.registeredUser}/>
+                <UserInfo currentUser={this.props.currentUser}/>
                 {this.props.registeredUser.registered ? '' :
-                    <RegisterForTickets registeredUser={this.props.registeredUser}/>    
+                    <RegisterForTickets currentUser={this.props.currentUser}/>    
                 }
             </div>
         )
+    }
+
+    createUserFile () {
+        console.log("createUserFile this: ", this);
+        var userId = this.props.currentUser._id;
+        Meteor.call('user.insertUser', userId);
+        this.setState({
+            userCreatedInRegister: true,
+        })
     }
 
     renderAdmin() {
@@ -103,42 +81,26 @@ class App extends Component {
         }
     }
 
-    componentDidMount() {
-        // this.createUserFile.bind(this);
-        console.log('componentDidMount this: ',this);
+    onRaffleUpdate (data) {
+        this.setState({
+
+        })
     }
 
     render() {
         return (
             <div className='container'>
                 <header>
-                    <h1>Todo List ({this.props.incompleteCount})</h1>
-                    
-                    <label className="hide-completed">
-                        <input
-                            type="checkbox"
-                            readOnly
-                            checked={this.state.hideCompleted}
-                            onClick={this.toggleHideCompleted.bind(this)}
-                        />
-                        Hide Completed Tasks
-                    </label>
+                    <h1>Jailbreak Raffle Dapp</h1>
 
                     <AccountsUIWrapper />
 
-                    <RaffleStats />
+                    <RaffleStats onUpdate={this.onRaffleUpdate}/>
 
                     {/* this only shows if user is logged into an account */}
-                    {/*{this.props.currentUser ?*/}
-                        
-                            {this.renderUser()}
-                            {/* Uncomment below to only allow single registration */}
-                            
-                            {/*<RegisterForTickets currentUser={this.props.currentUser}/>    */}
-                        {/*: ''*/}
-                    }
+                    {this.props.currentUser ? this.renderUser() : ''}
 
-                    {/*{this.renderAdmin()}*/}
+                    {this.renderAdmin()}
                 </header>
             </div>
         );
@@ -146,19 +108,16 @@ class App extends Component {
 }
 
 App.PropTypes = {
-    tasks: PropTypes.array.isRequired,
     incompleteCount: PropTypes.number.isRequired,
     currentUser: PropTypes.object.isRequired,
     registeredUser: PropTypes.object.isRequired,
 };
 
 export default createContainer(() => {
-    Meteor.subscribe('tasks');
     Meteor.subscribe('registeredUsers');
+    Meteor.subscribe('other-user-data');
 
     return {
-        tasks: Tasks.find({}, {sort: { createdAt: -1 } }).fetch(),
-        incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
         currentUser: Meteor.user(),
         registeredUser: RegisteredUsers.find({}).fetch(),
     };
