@@ -85,27 +85,38 @@ export default class RegisterForTickets extends Component {
         
 
         return (
-            <container className="register-container">
-                <hr />
-            
-                <div className="register-div" >
-                    <h2>Enter more information for more tickets!</h2>
-                    <form className="new-register" onSubmit={this.handleSubmit.bind(this)} >
-                        <input 
-                            type="text"
-                            ref="userCompany"
-                            placeholder="Your company"
-                        />
-                        <input 
-                            type="text"
-                            ref="userReason"
-                            placeholder="How'd you hear about this?"
-                        />
-                        <button type="submit">Register</button>
+                <div className="register-div row" >
+                {this.props.currentUser.company && this.props.currentUser.company ? '' :
+                    <div>
+                    <h4>Enter more information for more tickets!</h4>
+                    <form className="new-register col s12" onSubmit={this.handleSubmit.bind(this)} >
+                        <div className="row">
+                            <div className="input-field col s12">
+                                <input 
+                                    className="validate"
+                                    type="text"
+                                    ref="userCompany"
+                                    placeholder="Your company"
+                                />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="input-field col s12">
+                                <input 
+                                    type="text"
+                                    ref="userReason"
+                                    placeholder="How'd you hear about this?"
+                                />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <button className="waves-effect waves-light btn">Register</button>
+                        </div>
                     </form>
+                    </div>
+                }
                 </div>
-                <hr />
-            </container>
+                
         )
     }
 

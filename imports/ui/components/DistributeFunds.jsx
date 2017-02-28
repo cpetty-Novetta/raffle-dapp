@@ -89,13 +89,13 @@ export default class DistributeFunds extends Component {
         return (
             <container className="distribute-container">
                 <div className="stage-div">
-                    <span className="current-stage">Current Stage: {this.state.currentStage}</span>
+                    <span className="current-stage flow-text">Current Stage: {this.state.currentStage}</span>
                 </div>
                 <div className="close-registration-div">
-                    <button onClick={this.closeRegistration}>Close Registration</button>
+                    <button className="waves-effect waves-light btn" onClick={this.closeRegistration}>Close Registration</button>
                 </div>
                 <div className="distribute-div" >
-                    <button onClick={this.distributeFunds}>Distribute Funds</button>
+                    <button className="waves-effect waves-light btn" onClick={this.distributeFunds}>Distribute Funds</button>
                 </div>
             </container>
         )

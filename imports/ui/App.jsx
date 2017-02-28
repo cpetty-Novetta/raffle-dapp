@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { Tasks } from '/imports/api/tasks.js';
 import { RegisteredUsers } from '/imports/api/users.js';
+import { RaffleContractState } from '/imports/api/ethereumFunctions.js';
 
 
 import Task from '/imports/ui/Task.jsx';
@@ -87,6 +87,13 @@ class App extends Component {
         })
     }
 
+    componentDidMount() {
+        const printState = () => {
+            console.log(this.props.raffleContractState);
+        }
+        printState();
+    }
+
     render() {
         return (
             <div className='container'>
@@ -108,6 +115,7 @@ class App extends Component {
 }
 
 App.PropTypes = {
+    raffleContractState: PropTypes.object.isRequired,
     incompleteCount: PropTypes.number.isRequired,
     currentUser: PropTypes.object.isRequired,
     registeredUser: PropTypes.object.isRequired,
@@ -116,9 +124,11 @@ App.PropTypes = {
 export default createContainer(() => {
     Meteor.subscribe('registeredUsers');
     Meteor.subscribe('other-user-data');
+    Meteor.subscribe('raffleContractState');
 
     return {
         currentUser: Meteor.user(),
         registeredUser: RegisteredUsers.find({}).fetch(),
+        raffleContractState: RaffleContractState.find({}).fetch(),
     };
 }, App);

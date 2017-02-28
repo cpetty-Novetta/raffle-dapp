@@ -5,13 +5,14 @@ import { Session } from 'meteor/session';
 
 import { keystore, txutils } from 'eth-lightwallet';
 
+import "./UserInfo.scss";
+
 export default class UserInfo extends Component {
     constructor(props) {
         super(props);
     
         this.state = {
-            // userAddress: '0xcc2cef4512d12679ba2e21bf1aed183ea4f2785a',
-            userAddress: '',  // Current MetaMask account
+            userAddress: '',  
             userCompany: '',
             userReason: '',
             currentStage: '',
@@ -83,7 +84,7 @@ export default class UserInfo extends Component {
         setInterval(() => {
             refreshStats();
             return refreshStats
-        }, 5000)
+        }, 10000)
     }
 
     render() {
@@ -93,24 +94,25 @@ export default class UserInfo extends Component {
             <container className="container">
                 <hr />
                 <div className="user-info-div">
-                    <h2>Registered Tickets: {this.state.userTickets}</h2>
-                    <h2>Tokens Won: {this.state.userTokens}</h2>
+                    <h4>Registered Tickets: {this.state.userTickets}</h4>
+                    <h4>Tokens Won: {this.state.userTokens}</h4>
                 </div>
                 <div className="registered-div">
-                    <h2>Currently Registered Information:</h2>
+                    <hr />
+                    <h4>Currently Registered Information:</h4>
                     {this.props.currentUser.account ?  
-                        <p>Ethereum Address: {this.props.currentUser.account}</p> :
+                        <p className="flow-text">Ethereum Address: {this.props.currentUser.account}</p> :
                         <button onClick={this.getEthAddress.bind(this)}>Get Ethereum Address</button>
                     }  
-                    <p>Username: {this.props.currentUser.username}</p>
-                    <p>Email: {this.props.currentUser.emails[0].address}</p>
+                    <p className="flow-text">Username: {this.props.currentUser.username}</p>
+                    <p className="flow-text">Email: {this.props.currentUser.emails[0].address}</p>
                     {this.props.currentUser.company ?
-                        <p>Company: {this.props.currentUser.company}</p> : 
-                        <p className="unregistered">Company unregistered</p>
+                        <p className="flow-text">Company: {this.props.currentUser.company}</p> : 
+                        <p className="flow-text unregistered">Company unregistered</p>
                     }
                     {this.props.currentUser.company ?
-                        <p>Reason here: {this.props.currentUser.reason}</p> : 
-                        <p className="unregistered">Reason unregistered</p>
+                        <p className="flow-text">Reason here: {this.props.currentUser.reason}</p> : 
+                        <p className="flow-text unregistered">Reason unregistered</p>
                     }
                 </div>
                 <hr />

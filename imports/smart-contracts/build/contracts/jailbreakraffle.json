@@ -483,8 +483,56 @@
       "links": {},
       "address": "0x017e0ae4bdbc122d3e9ce7a1f1075cdea51ca770",
       "updated_at": 1488230352705
+    },
+    "1488290164305": {
+      "events": {
+        "0xb9e1558fc873cd2d285721e881c2949e44c7b3eb43d989684114ec57ae712121": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_username",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "_address",
+              "type": "address"
+            }
+          ],
+          "name": "userRegister",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xd022ca7920806a477ab3d5602c2ab333f12bc5e6",
+      "updated_at": 1488290171266
+    },
+    "1488310916954": {
+      "events": {
+        "0xb9e1558fc873cd2d285721e881c2949e44c7b3eb43d989684114ec57ae712121": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_username",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "_address",
+              "type": "address"
+            }
+          ],
+          "name": "userRegister",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xabe3aba10c46c997e51a19556a89b00aae70e340",
+      "updated_at": 1488310932110
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1488230352705
+  "updated_at": 1488310932110
 }

@@ -26,3 +26,5 @@ practicalmeteor:mocha
 ethereum:web3
 session@1.1.7
 msavin:mongol
+materialize:materialize
+fourseven:scss

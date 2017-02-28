@@ -18,7 +18,7 @@ body {
 }
  
 .container {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
   min-height: 100%;
   background: white;
@@ -33,20 +33,6 @@ header {
  
 #login-buttons {
   display: block;
-}
- 
-h1 {
-  font-size: 1.5em;
-  margin: 0;
-  margin-bottom: 10px;
-  display: inline-block;
-  margin-right: 1em;
-}
- 
-form {
-  margin-top: 10px;
-  margin-bottom: -10px;
-  position: relative;
 }
  
 .new-task input {
@@ -123,24 +109,6 @@ header .hide-completed {
   .new-task input {
     padding-bottom: 5px;
   }
-}
-
-.register-div {
-  margin-top: 2em;
-  margin-bottom: 2em;
-}
-.new-register input{
-  box-sizing: border-box;
-  padding: 10px 0;
-  background: transparent;
-  border: none;
-  width: 100%;
-  padding-right: 80px;
-  font-size: 1em;
-}
-
-.register-div input:focus{
-  outline: 0;
 }
 
 .distribute-div {

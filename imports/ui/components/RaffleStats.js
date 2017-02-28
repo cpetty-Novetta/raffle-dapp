@@ -71,9 +71,9 @@ export default class RaffleStats extends Component {
         return (
             <container className="raffle-stats">
                 <div className="fund-amount" >
-                    <h2>Fund Amount: {this.state.fundAmount}</h2>
-                    <h2>Number Users: {this.state.numUsers}</h2>
-                    <h2>Number Tickets: {this.state.numTickets}</h2>
+                    <h4>Fund Amount: {this.state.fundAmount}</h4>
+                    <h4>Number Users: {this.state.numUsers}</h4>
+                    <h4>Number Tickets: {this.state.numTickets}</h4>
                 </div>
             </container>
         )
