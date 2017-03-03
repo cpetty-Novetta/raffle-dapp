@@ -57,15 +57,18 @@ export default class RaffleStats extends Component {
             this.getNumUsers();
             this.getNumTickets();
         }
-        refreshStats()
 
-        setInterval(() => {
+        this.refreshInterval = setInterval(() => {
             refreshStats();
             return refreshStats
         }, 5000)
 
     }
  
+    componentWillUnmount() {
+        clearInterval(this.refreshInterval);
+    }
+
     render() {
         
         return (

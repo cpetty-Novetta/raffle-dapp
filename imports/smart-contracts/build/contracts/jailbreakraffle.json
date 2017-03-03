@@ -268,6 +268,30 @@
       "address": "0x4354f44663be40287eb50e9ff2427a3f2f736320",
       "updated_at": 1486060491153
     },
+    "1900": {
+      "events": {
+        "0xb9e1558fc873cd2d285721e881c2949e44c7b3eb43d989684114ec57ae712121": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_username",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "_address",
+              "type": "address"
+            }
+          ],
+          "name": "userRegister",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xad09da256df45c6d7c115ce30fa0423099a2e8fa",
+      "updated_at": 1488376359629
+    },
     "1486052774363": {
       "events": {
         "0xb9e1558fc873cd2d285721e881c2949e44c7b3eb43d989684114ec57ae712121": {
@@ -534,5 +558,5 @@
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1488310932110
+  "updated_at": 1488376359629
 }

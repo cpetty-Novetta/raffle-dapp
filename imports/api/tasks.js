@@ -68,24 +68,6 @@ Meteor.methods({
 
         Tasks.update(taskId, { $set: { private: setToPrivate } });
     },
-    'admin.fundAddress'(userId, addr) {
-        check(addr, String);
-
-        if (! this.isFunded) {
-        web3.eth.sendTransaction({
-            from: web3.eth.coinbase,
-            to: addr,
-            value: web3.toWei(1,'ether')
-        }, function(err, result) {
-            if (err) throw err;
-
-            web3.eth.getBalance(addr, function(err, balance) {
-                console.log("Current Balance: ", balance);
-            });
-        });
-        }
-
-        Meteor.users.update(userId, { $set: { isFunded: true } });
-    }
+    
 
 });

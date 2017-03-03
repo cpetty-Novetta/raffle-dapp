@@ -18,6 +18,7 @@ export default class UserInfo extends Component {
             currentStage: '',
             userTokens: 0,
             userTickets: 0,
+            hasAddress: false,
         };
 
         this.getUserInfo.bind(this);
@@ -41,10 +42,12 @@ export default class UserInfo extends Component {
         });
     }
 
+
+
     getEthAddress() {
         const seed = this.props.currentUser && this.props.currentUser._id;
-        console.log(this.props.currentUser);
-        console.log(! this.props.currentUser.account);
+        console.log("user account: ",this.props.currentUser.account)
+
         if ( this.props.currentUser && !this.props.currentUser.account) {
             keystore.createVault({
                 password: seed,
@@ -60,31 +63,45 @@ export default class UserInfo extends Component {
                     console.log("seed: ", seed);
                     console.log("address: ", addr);
                     console.log("address valueOf: ", addr);
-                    Meteor.call('user.insertAddress',seed, addr);
+                    Meteor.call('user.updateAddress',seed, addr);
                     if (Session.get('userAddress') === '') {
                         Session.set('userAddress', addr)
                     }
                     Meteor.call('admin.fundAddress', seed, addr);
-                    console.log("keyFromPassword this: ", this);
-                });
-            });
+                })
+               
+            }, function (result) {
+                console.log("result :",result);
+            })
             
-                console.log(Session.get('userAddress'));
+            
+                
             
         }
+        console.log(keystore.getAddresses());
+        Meteor.setTimeout(() => {console.log(ks)}, 3000);
+
+        
     }
     
     componentDidMount() {
+        // this.getEthAddress();
         const refreshStats = () => {
             this.getUserInfo();
         }
 
-        refreshStats();
-
-        setInterval(() => {
-            refreshStats();
-            return refreshStats
+        this.refreshInterval = setInterval(() => {
+            if (this.state.hasAddress) {
+                refreshStats();
+                return refreshStats;
+            } else {
+                return '';
+            }
         }, 10000)
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.refreshInterval);
     }
 
     render() {
@@ -100,10 +117,12 @@ export default class UserInfo extends Component {
                 <div className="registered-div">
                     <hr />
                     <h4>Currently Registered Information:</h4>
+                    
                     {this.props.currentUser.account ?  
                         <p className="flow-text">Ethereum Address: {this.props.currentUser.account}</p> :
-                        <button onClick={this.getEthAddress.bind(this)}>Get Ethereum Address</button>
+                        <p className="flow-text">Getting Ethereum Address</p>
                     }  
+                    
                     <p className="flow-text">Username: {this.props.currentUser.username}</p>
                     <p className="flow-text">Email: {this.props.currentUser.emails[0].address}</p>
                     {this.props.currentUser.company ?

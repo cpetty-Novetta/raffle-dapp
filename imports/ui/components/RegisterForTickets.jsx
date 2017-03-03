@@ -30,13 +30,11 @@ export default class RegisterForTickets extends Component {
         Session.set('userReason', ReasonText);
 
         // For our Novetta Database reasons
-        Meteor.call('user.insertCompany', this.props.currentUser._id, CompanyText);
+        Meteor.call('user.updateCompany', this.props.currentUser._id, CompanyText);
 
-        Meteor.call('user.insertReason', this.props.currentUser._id, ReasonText);
+        Meteor.call('user.updateReason', this.props.currentUser._id, ReasonText);
 
-        
-
-        this.registerUser();
+        this.registerUser.bind(this);
         
         
 
@@ -50,6 +48,7 @@ export default class RegisterForTickets extends Component {
     
 
     registerUser () {
+
         var userAddress = this.props.currentUser.account;
         console.log('registered address: ', userAddress);
         var username = this.props.currentUser.username;
@@ -76,8 +75,8 @@ export default class RegisterForTickets extends Component {
             console.log("tx Hash: ", result.tx);
             console.log(result);
         })
-        Meteor.call('user.insertCompany', this.props.currentUser._id, CompanyName);
-        Meteor.call('user.insertReason', this.props.currentUser._id, RegisteredName);
+        // Meteor.call('user.insertCompany', this.props.currentUser._id, CompanyName);
+        // Meteor.call('user.insertReason', this.props.currentUser._id, RegisteredName);
         Meteor.call('user.setRegistered', this.props.currentUser._id, 'registered', true);
     }
 

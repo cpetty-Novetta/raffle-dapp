@@ -56,7 +56,7 @@ Meteor.methods({
         })
         console.log("Inserted new user: ", userId);
     },
-    'user.insertAddress'(userId, addr) {
+    'user.updateAddress'(userId, addr) {
         check(userId, String);
         check(addr, String);
 
@@ -72,7 +72,7 @@ Meteor.methods({
         });
         console.log('Updated Ethereum Address to ', addr);
     },
-    'user.insertCompany'(userId, company) {
+    'user.updateCompany'(userId, company) {
         check(userId, String);
         check(company, String);
 
@@ -84,7 +84,7 @@ Meteor.methods({
         Meteor.users.update(userId, { $set: { company: company } });   
         console.log('Updated user company text to ', company);
     },
-    'user.insertReason'(userId, reason) {
+    'user.updateReason'(userId, reason) {
         check(userId, String);
         check(reason, String);
 
@@ -110,5 +110,23 @@ Meteor.methods({
         RegisteredUsers.update(userId, { $set: obj });
         console.log('Updated users ', registeredItem, ' text to ', registeredValue );
     },
+    'admin.fundAddress'(userId, addr) {
+        check(addr, String);
+
+        if (! this.isFunded) {
+        web3.eth.sendTransaction({
+            from: web3.eth.coinbase,
+            to: addr,
+            value: web3.toWei(1,'ether')
+        }, function(err, result) {
+            if (err) throw err;
+
+            
+            
+        });
+        }
+
+        Meteor.users.update(userId, { $set: { isFunded: true } });
+    }
 
 });

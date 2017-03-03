@@ -3,7 +3,7 @@ import { default as Web3 } from 'web3';
 var json = require("/imports/smart-contracts/build/contracts/JailbreakRaffle.json");
 var contract_abi = json["abi"];
 var unlinked_binary = json["unlinked_binary"];
-contract_address = '0xd2e67ec656c8eadf3624c5a2f25b621ba019a597';
+var contract_address = json["networks"]["1900"].address
 
 
 // contract_address = json["networks"]["1000"]["address"];
@@ -31,3 +31,4 @@ web3.eth.getAccounts((err, accs) => {
     accounts = accs;
     coinbase = accs[0];
 })
+

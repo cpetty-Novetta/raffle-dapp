@@ -7,12 +7,12 @@ import { RegisteredUsers } from '/imports/api/users.js';
 import { RaffleContractState } from '/imports/api/ethereumFunctions.js';
 
 
-import Task from '/imports/ui/Task.jsx';
 import AccountsUIWrapper from '/imports/ui/AccountsUIWrapper.jsx';
 import RaffleStats from '/imports/ui/components/RaffleStats';
 import RegisterForTickets from '/imports/ui/components/RegisterForTickets';
 import DistributeFunds from '/imports/ui/components/DistributeFunds';
 import UserInfo from '/imports/ui/components/UserInfo';
+var lightwallet = require('eth-lightwallet');
 
 // App component - represents the whole Appe
 class App extends Component {
@@ -31,6 +31,7 @@ class App extends Component {
 
         this.renderAdmin.bind(this);
         this.renderUser.bind(this);
+
         // this.createUserFile.bind(this);
     }
 
@@ -69,6 +70,11 @@ class App extends Component {
         })
     }
 
+    // getEthAddress() {
+    //     // const seed = this.props.currentUser && this.props.currentUser._id;
+    //     var seed = 'unhappy nerve cancel reject october fix vital pulse cash behind curious bicycle'
+        
+
     renderAdmin() {
         const currentUserName = this.props.currentUser && this.props.currentUser.username;
         if (currentUserName === 'cpetty') {
@@ -90,6 +96,7 @@ class App extends Component {
     componentDidMount() {
         const printState = () => {
             console.log(this.props.raffleContractState);
+            
         }
         printState();
     }
@@ -103,6 +110,7 @@ class App extends Component {
                     <AccountsUIWrapper />
 
                     <RaffleStats onUpdate={this.onRaffleUpdate}/>
+                    {/*<button onClick={this.getEthAddress}>Click for getEthAddress</button>*/}
 
                     {/* this only shows if user is logged into an account */}
                     {this.props.currentUser ? this.renderUser() : ''}
