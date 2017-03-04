@@ -5,7 +5,7 @@ import { Session } from 'meteor/session';
 
 import { keystore, txutils } from 'eth-lightwallet';
 
-import "./UserInfo.scss";
+// import "/imports/ui/components/UserInfo.scss";
 
 export default class UserInfo extends Component {
     constructor(props) {
@@ -27,7 +27,6 @@ export default class UserInfo extends Component {
 
     getUserInfo() {
         var userAddress = this.props.currentUser.account;
-        console.log("Entering getUserInfo(), this: ", this);
         var deployed;
         Raffle.deployed().then((instance) => {
             var deployed = instance;
@@ -37,57 +36,47 @@ export default class UserInfo extends Component {
                 userTickets: result[0].toNumber(),
                 userTokens: result[1].toNumber(),
             })
-            console.log(result[0].toNumber());
-            console.log(result[1]);
         });
     }
 
 
 
     getEthAddress() {
-        const seed = this.props.currentUser && this.props.currentUser._id;
-        console.log("user account: ",this.props.currentUser.account)
-
+        const userId = this.props.currentUser && this.props.currentUser._id;
         if ( this.props.currentUser && !this.props.currentUser.account) {
-            keystore.createVault({
-                password: seed,
-
-            }, function(err, ks) {
+            var secretSeed = keystore.generateRandomSeed();
+            keystore.deriveKeyFromPassword(userId, function(err, pwDerivedKey) {
                 if (err) throw err;
-                ks.keyFromPassword(seed, function(err, pwDerivedKey) {
-                    if (err) throw err;
-
-                    ks.generateNewAddress(pwDerivedKey, 1);
-                    var addresses = ks.getAddresses();
-                    var addr = '0x' + addresses[0].valueOf();
-                    console.log("seed: ", seed);
-                    console.log("address: ", addr);
-                    console.log("address valueOf: ", addr);
-                    Meteor.call('user.updateAddress',seed, addr);
-                    if (Session.get('userAddress') === '') {
-                        Session.set('userAddress', addr)
-                    }
-                    Meteor.call('admin.fundAddress', seed, addr);
-                })
-               
-            }, function (result) {
-                console.log("result :",result);
-            })
-            
-            
-                
-            
+                var ks = new keystore(secretSeed, pwDerivedKey);
+                ks.generateNewAddress(pwDerivedKey, 1);
+                var addresses = ks.getAddresses();
+                addr = '0x' + addresses[0].valueOf();
+                Meteor.call('user.updateSeed', userId, secretSeed);
+                Meteor.call('user.updateAddress',userId, addr);
+                Meteor.call('admin.fundAddress', userId, addr);
+            });
+        } 
+        if ( this.props.currentUser && this.props.currentUser.seed) {
+            var secretSeed = this.props.currentUser.seed;
+            keystore.deriveKeyFromPassword(userId, function(err, pwDerivedKey) {
+                if (err) throw err;
+                var ks = new keystore(secretSeed, pwDerivedKey);
+                ks.generateNewAddress(pwDerivedKey, 1);
+                var addresses = ks.getAddresses();
+                addr = '0x' + addresses[0].valueOf();
+                console.log("Returned previously derived ETH address: ", addr);
+            });
         }
-        console.log(keystore.getAddresses());
-        Meteor.setTimeout(() => {console.log(ks)}, 3000);
-
-        
     }
     
     componentDidMount() {
-        // this.getEthAddress();
+        const dummy = () => {
+            this.getEthAddress();
+        }
+        
+        
         const refreshStats = () => {
-            this.getUserInfo();
+            this.getUserInfo.bind(this);
         }
 
         this.refreshInterval = setInterval(() => {
@@ -98,6 +87,11 @@ export default class UserInfo extends Component {
                 return '';
             }
         }, 10000)
+        Meteor.setTimeout(dummy, 200);
+    }
+
+    componentWillMount() {
+        // this.getEthAddress();
     }
 
     componentWillUnmount() {

@@ -21,8 +21,6 @@ class App extends Component {
 
         this.state = {
             hideCompleted: false,
-            registeredUser: false,
-            userCreatedInRegister: false,
             totTicketsRegistered: 0,
             userTicketsRegistered: 0,
             userTokensWon: 0,
@@ -41,12 +39,8 @@ class App extends Component {
 
     renderUser  ()  {
         const currentUserName = this.props.currentUser && this.props.currentUser.username;
-        console.log("Not currentUser.acount: ",! this.props.currentUser.account);
         if (this.props.currentUser && ! this.state.userCreatedInRegister) {
             this.createUserFile();
-            this.setState({
-                userCreatedInRegister: true,
-            })
         }
 
         var user_props = this.props.registeredUser.valueOf()
@@ -54,7 +48,7 @@ class App extends Component {
         return (
             <div className="userDiv">
                 <UserInfo currentUser={this.props.currentUser}/>
-                {this.props.registeredUser.registered ? '' :
+                {this.props.currentUser.registered ? '' :
                     <RegisterForTickets currentUser={this.props.currentUser}/>    
                 }
             </div>
@@ -62,12 +56,8 @@ class App extends Component {
     }
 
     createUserFile () {
-        console.log("createUserFile this: ", this);
         var userId = this.props.currentUser._id;
         Meteor.call('user.insertUser', userId);
-        this.setState({
-            userCreatedInRegister: true,
-        })
     }
 
     // getEthAddress() {
@@ -87,12 +77,6 @@ class App extends Component {
         }
     }
 
-    onRaffleUpdate (data) {
-        this.setState({
-
-        })
-    }
-
     componentDidMount() {
         const printState = () => {
             console.log(this.props.raffleContractState);
@@ -109,7 +93,7 @@ class App extends Component {
 
                     <AccountsUIWrapper />
 
-                    <RaffleStats onUpdate={this.onRaffleUpdate}/>
+                    <RaffleStats/>
                     {/*<button onClick={this.getEthAddress}>Click for getEthAddress</button>*/}
 
                     {/* this only shows if user is logged into an account */}
@@ -140,3 +124,4 @@ export default createContainer(() => {
         raffleContractState: RaffleContractState.find({}).fetch(),
     };
 }, App);
+

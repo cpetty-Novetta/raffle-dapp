@@ -10,9 +10,9 @@ export default class RegisterForTickets extends Component {
         super(props);
     
         this.state = {
-            userAddress: '', 
-            userCompany: '',
-            userReason: '',
+            userAddress: this.props.currentUser.account, 
+            userCompany: this.props.currentUser.company,
+            userReason: this.props.currentUser.reason,
         };
 
         this.handleSubmit.bind(this);
@@ -34,9 +34,10 @@ export default class RegisterForTickets extends Component {
 
         Meteor.call('user.updateReason', this.props.currentUser._id, ReasonText);
 
-        this.registerUser.bind(this);
-        
-        
+        dummy = () => {
+            this.registerUser();
+        }
+        Meteor.setTimeout(dummy, 200);
 
         // Clear form
         ReactDOM.findDOMNode(this.refs.userCompany).value = '';
@@ -75,8 +76,7 @@ export default class RegisterForTickets extends Component {
             console.log("tx Hash: ", result.tx);
             console.log(result);
         })
-        // Meteor.call('user.insertCompany', this.props.currentUser._id, CompanyName);
-        // Meteor.call('user.insertReason', this.props.currentUser._id, RegisteredName);
+        
         Meteor.call('user.setRegistered', this.props.currentUser._id, 'registered', true);
     }
 

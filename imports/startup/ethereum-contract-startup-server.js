@@ -20,12 +20,12 @@ var contract_address = json["networks"]["1900"].address
 web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 web3.eth.getAccounts((err, accs) => {
     if (err != null) {
-        alert("There was an error fething accounts.");
+        // alert("There was an error fething accounts.");
         return;
     }
 
     if (accs.length == 0)  {
-        alert("Couldn't get any accounts! Make sure Ethereum client is running.")
+        // alert("Couldn't get any accounts! Make sure Ethereum client is running.")
     }
 
     accounts = accs;
