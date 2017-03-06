@@ -67,6 +67,7 @@ class App extends Component {
 
     renderAdmin() {
         const currentUserName = this.props.currentUser && this.props.currentUser.username;
+        console.log(this.context.router);
         if (currentUserName === 'cpetty') {
             
             return (
@@ -91,7 +92,7 @@ class App extends Component {
                 <header>
                     <h1>Jailbreak Raffle Dapp</h1>
 
-                    <AccountsUIWrapper />
+                    {/*<AccountsUIWrapper />*/}
 
                     <RaffleStats/>
                     {/*<button onClick={this.getEthAddress}>Click for getEthAddress</button>*/}
@@ -112,6 +113,11 @@ App.PropTypes = {
     currentUser: PropTypes.object.isRequired,
     registeredUser: PropTypes.object.isRequired,
 };
+
+App.ContextTypes = {
+    router: PropTypes.object.isRequired,
+}
+
 
 export default createContainer(() => {
     Meteor.subscribe('registeredUsers');
