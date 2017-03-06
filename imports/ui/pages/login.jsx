@@ -1,16 +1,7 @@
 import React from 'react';
 import { Redirect, withRouter } from 'react-router-dom';
 
-// import './Register.scss';
-
-
-
-
 class Login extends React.Component {
-    // state = {
-    //     redirectToRefferer: false,
-    // }
-
     handleSubmit(event) {
         event.preventDefault();
         var ele = $(event.target);
@@ -23,18 +14,15 @@ class Login extends React.Component {
             if (er) {
                 Materialize.toast(er.reason, 4000);
             } else {
+                Session.set("loggedIn", true);
                 this.props.history.push('/');
                 Materialize.toast("You're logged in!", 4000);
             };
         })
-        // this.setState({ redirectToRefferer: true });
-        
-        // console.log("handleSubmit: ", this.state.redirectToRefferer);
     }
 
     render () {
         const { from } = this.props.location.state || { from: { pathname: '/' } }
-        // const { redirectToRefferer } = this.state
         return (
         <div className="container">
             <h4 className="text-center">Login</h4>
@@ -60,12 +48,6 @@ class Login extends React.Component {
         </div>
         )
     }
-
 }
-
-Login.ContextTypes = {
-    router: React.PropTypes.object
-}
-
 
 export default withRouter(Login);

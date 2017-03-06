@@ -1,37 +1,40 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 
 // import './Register.scss';
 
 
-export default class Register extends React.Component {
+class Register extends React.Component {
     constructor(props) {
         super(props);
 
     }
 
     handleSubmit(event) {
-        
 		event.preventDefault();
 		var ele = $(event.target);
 
         var firstName = ele.find("#first_name").val();
         var lastName = ele.find("#last_name").val();
+        var username = ele.find('#username').val();
 		var email = ele.find("#email").val();
-        var copmany = ele.find("#company").val();
+        var company = ele.find("#company").val();
         var reason = ele.find("#reason").val();
 		var password = ele.find("#password").val();
 		var confirmPassword = ele.find("#confirmPassword").val();
 		if(password === confirmPassword && password !== "" && confirmPassword !== "") {
 			var accountInfo = {
 				email: email,
-				password: password
+				password: password,
+                username: username,
 			};
-			Accounts.createUser(accountInfo, function(er) {
+			Accounts.createUser(accountInfo, (er) => {
 				if(er) {
 					Materialize.toast(er.reason, 4000);
 				} else {
-					//Redirect
+                    Session.set("loggedIn", true);
 					Materialize.toast("You're logged in!", 4000);
+                    this.props.history.push('/');
 				}
 			});
 		} else {
@@ -49,7 +52,7 @@ export default class Register extends React.Component {
         <div className="container">
             <h4 className="text-center">Register</h4>
               <div className="row">
-                <form className="col offset-s4 s4" onSubmit={this.handleSubmit}>
+                <form className="col offset-s4 s4" onSubmit={this.handleSubmit.bind(this)}>
                 <div className="row">
                     <div className="input-field col s6">
                     <input id="first_name" type="text" className="validate" />
@@ -58,6 +61,12 @@ export default class Register extends React.Component {
                     <div className="input-field col s6">
                     <input id="last_name" type="text" className="validate" />
                     <label htmlFor="last_name">Last Name</label>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="input-field col s12">
+                    <input id="username" type="username" className="validate" />
+                    <label htmlFor="username">Username</label>
                     </div>
                 </div>
                 <div className="row">
@@ -100,3 +109,5 @@ export default class Register extends React.Component {
     );
   }
 }
+
+export default withRouter(Register);

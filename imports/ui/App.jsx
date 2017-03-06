@@ -60,11 +60,6 @@ class App extends Component {
         Meteor.call('user.insertUser', userId);
     }
 
-    // getEthAddress() {
-    //     // const seed = this.props.currentUser && this.props.currentUser._id;
-    //     var seed = 'unhappy nerve cancel reject october fix vital pulse cash behind curious bicycle'
-        
-
     renderAdmin() {
         const currentUserName = this.props.currentUser && this.props.currentUser.username;
         console.log(this.context.router);
@@ -81,6 +76,7 @@ class App extends Component {
     componentDidMount() {
         const printState = () => {
             console.log(this.props.raffleContractState);
+            
             
         }
         printState();

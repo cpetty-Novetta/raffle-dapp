@@ -8,19 +8,13 @@ import Register from '../pages/register.jsx';
 import NotFound from '../pages/notFound.jsx';
 
 export default class MainLayout extends React.Component {
+
   render() {
     return (
       <Router>
         <div>
           <Header />
             <Switch>
-              {/*<Route exact path='/' render={() => (
-                  loggedIn ? (
-                      <App />
-                  ) : (
-                      <Redirect to="/login" />
-                  )
-              )}/>*/}
               <Route exact path = '/' component={App} />
               <Route path = '/dashboard' component={App} />
               <Route path = '/login' component={Login} />
