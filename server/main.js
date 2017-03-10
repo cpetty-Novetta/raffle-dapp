@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import '/imports/startup/ethereum-contract-startup-server';
-import { Session } from 'meteor/session';
 
 import '/imports/api/users.js';
 import '/imports/api/ethereumFunctions.js';
@@ -45,24 +44,6 @@ Meteor.startup(() => {
         })
     }
 
-    getFundAmount = () => {
-        var deployed;
-        Raffle.deployed().then((instance) => {
-            var deployed = instance;
-            return instance.getFundBalance();
-        }).then((result) => {
-            RaffleContractState.update(
-              'state',
-              { $set: 
-                {
-                  fundBalanceTotal: result.valueOf(),
-                }
-              },
-              { upsert: true}
-            )
-        })
-    }
-
     getCurrentStage = () => {
         var deployed;
         Raffle.deployed().then((instance) => {
@@ -80,8 +61,4 @@ Meteor.startup(() => {
             )
         });
     }
-
-    setInterval(
-
-    )
 });

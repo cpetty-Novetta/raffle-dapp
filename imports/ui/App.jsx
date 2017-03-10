@@ -1,59 +1,46 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
+import { withRouter } from 'react-router-dom';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { RegisteredUsers } from '/imports/api/users.js';
-import { RaffleContractState } from '/imports/api/ethereumFunctions.js';
-
+import { RegisteredTickets } from '/imports/api/ethereumFunctions.js';
 
 import AccountsUIWrapper from '/imports/ui/AccountsUIWrapper.jsx';
 import RaffleStats from '/imports/ui/components/RaffleStats';
 import RegisterForTickets from '/imports/ui/components/RegisterForTickets';
 import DistributeFunds from '/imports/ui/components/DistributeFunds';
+// import UserContainer from '/imports/ui/containers/UserContainer';
 import UserInfo from '/imports/ui/components/UserInfo';
-var lightwallet = require('eth-lightwallet');
+
 
 // App component - represents the whole Appe
 class App extends Component {
     constructor(props) {
         super(props)
-
-        this.state = {
-            hideCompleted: false,
-            totTicketsRegistered: 0,
-            userTicketsRegistered: 0,
-            userTokensWon: 0,
-            totUsersRegistered: 0,
-        };
-
-        this.renderAdmin.bind(this);
-        this.renderUser.bind(this);
-
-        // this.createUserFile.bind(this);
     }
 
-    refreshStats() {
-        // Refresh all contract and user stats after something is called.
-    }
-
-    renderUser  ()  {
+    /*renderUser(props)  {
+        console.log("renderUser props: ", props)
         const currentUserName = this.props.currentUser && this.props.currentUser.username;
         if (this.props.currentUser && ! this.state.userCreatedInRegister) {
-            this.createUserFile();
+            // this.createUserFile();
+            this.setState({
+                userCreatedInRegister: true,
+            });
         }
 
-        var user_props = this.props.registeredUser.valueOf()
+        // var user_props = this.props.registeredUser.valueOf()
 
         return (
             <div className="userDiv">
                 <UserInfo currentUser={this.props.currentUser}/>
-                {this.props.currentUser.registered ? '' :
+                {this.props.currentUser.isRegistered ? '' :
                     <RegisterForTickets currentUser={this.props.currentUser}/>    
                 }
             </div>
         )
-    }
+    }*/
 
     createUserFile () {
         var userId = this.props.currentUser._id;
@@ -62,7 +49,6 @@ class App extends Component {
 
     renderAdmin() {
         const currentUserName = this.props.currentUser && this.props.currentUser.username;
-        console.log(this.context.router);
         if (currentUserName === 'cpetty') {
             
             return (
@@ -73,41 +59,48 @@ class App extends Component {
         }
     }
 
-    componentDidMount() {
-        const printState = () => {
-            console.log(this.props.raffleContractState);
-            
-            
+    checkAuth(props) {
+        if (props.userLoaded && !props.currentUser) {
+            this.props.history.push('/login');
         }
-        printState();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.userLoaded !== this.props.userLoaded) {
+            this.checkAuth(nextProps);
+        }
     }
 
     render() {
+        if (Meteor.userId() !== null) {
         return (
             <div className='container'>
                 <header>
-                    <h1>Jailbreak Raffle Dapp</h1>
+                    <RaffleStats />
 
-                    {/*<AccountsUIWrapper />*/}
+                    <UserInfo currentUser={this.props.currentUser} userLoaded={this.props.userLoaded}/>
+                    <RegisterForTickets currentUser={this.props.currentUser} />
 
-                    <RaffleStats/>
-                    {/*<button onClick={this.getEthAddress}>Click for getEthAddress</button>*/}
-
-                    {/* this only shows if user is logged into an account */}
-                    {this.props.currentUser ? this.renderUser() : ''}
-
-                    {this.renderAdmin()}
+                    {/*{this.renderAdmin()}*/}
                 </header>
             </div>
         );
+        } else {
+            return (
+                <div className="container">
+                    <header>
+                        <RaffleStats />
+                        <p className="flow-text">Please Log In or Register</p>
+                    </header>
+                </div>)
+        }
     }
 }
 
 App.PropTypes = {
     raffleContractState: PropTypes.object.isRequired,
-    incompleteCount: PropTypes.number.isRequired,
     currentUser: PropTypes.object.isRequired,
-    registeredUser: PropTypes.object.isRequired,
+    userLoaded: PropTypes.bool
 };
 
 App.ContextTypes = {
@@ -116,14 +109,13 @@ App.ContextTypes = {
 
 
 export default createContainer(() => {
-    Meteor.subscribe('registeredUsers');
-    Meteor.subscribe('other-user-data');
-    Meteor.subscribe('raffleContractState');
+    const handle = Meteor.subscribe('other-user-data');
+    Meteor.subscribe('raffleRegisteredTickets');
 
     return {
         currentUser: Meteor.user(),
-        registeredUser: RegisteredUsers.find({}).fetch(),
-        raffleContractState: RaffleContractState.find({}).fetch(),
+        raffleRegisteredTickets: RegisteredTickets.find({}).fetch(),
+        userLoaded:  handle.ready(),
     };
 }, App);
 

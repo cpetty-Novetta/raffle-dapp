@@ -2,27 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Mongo } from 'meteor/mongo';
 
-export const RegisteredUsers = new Mongo.Collection('registeredUsers');
-
 if (Meteor.isServer) {
     // This code only runs on the server
-    // Only publish tasks that are public or belong to current user
-    Meteor.publish('registeredUsers', function registeredUsersPublication() {
-            return RegisteredUsers.find(
-                {_id: this.userId},
-                {fields: {
-                    'account': 1, 
-                    'createdAt': 1,
-                    'registered': 1,
-                    'company': 1,
-                    'reason': 1,
-                    'email': 1, 
-                    'username': 1,
-                    '_id': 1,
-                }});
-            // console.log(this.userId);
-            // return RegisteredUsers.find();
-    });
     Meteor.publish('other-user-data', function otheUserDataPublication() {
         return Meteor.users.find(
             {_id: this.userId},
@@ -31,8 +12,12 @@ if (Meteor.isServer) {
                 company: 1,
                 reason: 1,
                 seed: 1,
+                privKey: 1,
                 isFunded: 1,
-                registered: 1,
+                isRegistered: 1,
+                raffleTicketsRegistered: 1,
+                raffleTicketsToRegister: 1,
+                ticketsRegistered: 1,
             }}
         )
     })
@@ -58,20 +43,17 @@ Meteor.methods({
             throw new Meteor.Error('not-authorized');
         }
 
-        // RegisteredUsers.update(userId, {
-        //     $set: { account: addr } 
-        // });  
         Meteor.users.update(userId, {
             $set: { account: addr } 
         });
         console.log('Updated Ethereum Address to ', addr);
     },
-    'user.updateSeed'(userId, seed) {
+    'user.updatePrivKey'(userId, privKey) {
         check(userId, String);
-        check(seed, String);
+        check(privKey, String);
 
-        Meteor.users.update(userId, { $set: { seed: seed } });
-        console.log('updated user ', userId, ' to seed: ', seed);
+        Meteor.users.update(userId, { $set: { privKey: privKey } });
+        console.log('updated user ', userId, ' to privKey: ', privKey);
     },
     'user.updateCompany'(userId, company) {
         check(userId, String);
@@ -81,7 +63,6 @@ Meteor.methods({
             throw new Meteor.Error('not-authorized');
         }
 
-        // RegisteredUsers.update(userId, { $set: { company: company } });   
         Meteor.users.update(userId, { $set: { company: company } });   
         console.log('Updated user company text to ', company);
     },
@@ -93,7 +74,6 @@ Meteor.methods({
             throw new Meteor.Error('not-authorized');
         }
 
-        // RegisteredUsers.update(userId, { $set: { reason: reason } });  
         Meteor.users.update(userId, { $set: { reason: reason } });   
         console.log('Updated user reason text to ', reason)
     },
@@ -110,6 +90,29 @@ Meteor.methods({
         obj[registeredItem] = registeredValue;
         Meteor.users.update(userId, { $set: obj });
         console.log('Updated users ', registeredItem, ' text to ', registeredValue );
+    },
+    'user.updateNumTickets'(userId, numTickets) {
+        check(userId, String);
+        check(numTickets, Number);
+
+        Meteor.users.update(userId, { $set: { raffleTicketsToRegister: numTickets } })
+        console.log("Successfully registered ", numTickets, " to user ", userId);
+    },
+    'user.updateNumTicketsRegistered'(userId, numTickets) {
+        check(userId, String);
+        check(numTickets, Number);
+
+        Meteor.users.update(userId, { $set: { raffleTicketsRegistered: numTickets } })
+        console.log("Updated potential tickets of user ", userId, " to ", numTickets);
+    },
+    'user.insertNewRegisteredTicket'(address, ticketId) {
+        check(address, String);
+        check(ticketId, Number);
+
+        Meteor.users.update(
+            {account: address}, 
+            { $addToSet: { ticketsRegistered: ticketId } }
+        )
     },
     'admin.fundAddress'(userId, addr) {
         check(addr, String);

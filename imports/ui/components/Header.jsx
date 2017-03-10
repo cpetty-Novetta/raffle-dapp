@@ -7,16 +7,13 @@ class Header extends React.Component {
     logoutUser(event) {
         event.preventDefault();
         Meteor.logout((err) => {
+          console.log(this.props)
             Materialize.toast("You've logged out", 4000);
-            Session.set("loggedIn", false);
             this.props.history.push('/');
         });
     }
 
   render() {
-      var isUserLoggedIn = () => {
-          return Session.get("loggedIn");
-      }
     var navStyle={
       backgroundColor: "#42a5f5", 
       paddingLeft: "12px"
@@ -25,7 +22,7 @@ class Header extends React.Component {
           <nav style={navStyle}>
             <div className="nav-wrapper">
               <NavLink to="/" className="brand-logo">Raffle Dapp</NavLink>
-              {isUserLoggedIn() ? 
+              {this.props.currentUser && this.props.currentUser._id ? 
               <ul id="nav-mobile" className="right">
                 <li id="nav-button" ><a onClick={this.logoutUser.bind(this)}>Logout</a></li>
               </ul> :

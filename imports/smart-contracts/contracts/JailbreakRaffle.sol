@@ -1,22 +1,14 @@
 pragma solidity ^0.4.2;
 
-import "./HumanStandardToken.sol";
-
 contract JailbreakRaffle {
-    HumanStandardToken newToken;
-    // Constructor, run at deployment
-    function JailbreakRaffle(uint256 _initialAmount, string _name, uint8 _decimals, string _symbol) public {
-        newToken = (new HumanStandardToken(_initialAmount, _name, _decimals, _symbol));
-        mainRaffle.raffleOwner = this;
-        mainRaffle.raffleFund = _initialAmount;
-    }
-    
+    //////////////////////////////////////////////////////////
+    //   Contract Stage Section
+    //////////////////////////////////////////////////////////
     enum Stages {
         Registration,
         Disbursement,
         Finished
     }
-
     // This is the current contract stage
     Stages public stage = Stages.Registration;
     
@@ -27,105 +19,116 @@ contract JailbreakRaffle {
         }
         _;
     }
-
     // For moving through contract stages
     function nextStage() internal {
         stage = Stages(uint(stage) + 1);
+        stageChanged(uint(stage) + 1);
     }
-
-    // Get the current stage
-    function getStage() constant public returns (uint d) {
-        d = uint256(stage);
-    }
-
-    event userRegister(string _username, address _address);
-    
-    struct User {
-        string email;
-        string username;
-        string companyName;
-        string reasonHere;
-        uint numTickets;
-    }
-    
-    mapping(address => User) users;
-    address[] public userList;
-    
-    struct raffleData {
-        uint raffleFund;
-        address raffleOwner;
-        uint256 numTotalTickets;
-        uint numPrizes;
-        uint numUsers;
-        uint winningNumber;
-    } 
-    // Instantiate raffleData struct
-    raffleData public mainRaffle;
-
-
-    // A registered user should get tickets for every entry they provide Novetta
-    //   it is assumed the client sends well-formed data, or '0' for null
-    //     - email - 1 ticket
-    //     - phone - 1 ticket
-    //     - current employer - 1 ticket
-    //     - how you heard - 1 ticket
-    function registerUser (address userAddress, string username, string email, string companyName, string reasonHere) public atStage(Stages.Registration) {
-        users[userAddress].numTickets = 0;
-        users[userAddress].username = username;
-        users[userAddress].email = email;
-        if (bytes(email).length != 0) {
-            users[userAddress].numTickets += 1;
-        }     
-        users[userAddress].companyName = companyName;
-        if (bytes(companyName).length != 0) {
-            users[userAddress].numTickets += 1;
-        }
-        users[userAddress].reasonHere = reasonHere;
-        if (bytes(reasonHere).length != 0) {
-            users[userAddress].numTickets += 1;
-        } 
-        
-        
-        mainRaffle.numTotalTickets += users[userAddress].numTickets;
-        
-        // Add user address to list for later iteration
-        userList.push(userAddress);
-        mainRaffle.numUsers += 1;
-        userRegister(username, userAddress);
-    }
-    
-    function getNumUsers() public constant returns (uint) {
-        return mainRaffle.numUsers;
-    } 
-    
-    function getNumTickets() public constant returns (uint) {
-        return mainRaffle.numTotalTickets;
-    }
-    
-    function getUserInfo(address userAddress) public constant returns (uint, uint256) {
-        return (users[userAddress].numTickets, newToken.balanceOf(userAddress));
-    }
-    
+    // Move stage to close registration
     function closeRegistration() atStage(Stages.Registration) {
         nextStage();
     }
 
-    function distributeFunds() atStage(Stages.Disbursement) {
-        // TODO: add `atStage` modifier for disbursement stage only
-        // for now, lets just distribute evenly
-        uint256 tokensPerTicket = mainRaffle.raffleFund / mainRaffle.numTotalTickets;
-        for (uint i = 0; i < userList.length; i++) {
-            newToken.transfer(userList[i], tokensPerTicket * users[userList[i]].numTickets );   
+    //////////////////////////////////////////////////////////
+    //   Contract variable declaration section
+    //////////////////////////////////////////////////////////
+    
+    // Declare Events
+    event ticketRegistered(string _username, address _address, uint _ticketId);
+    event stageChanged(uint _stage);
+    event prizeWon(address _winningAddress, string _prize);
+    
+    // Declare raffle property variables
+    uint nonce = 0;
+    uint numTicketsTotal = 0;
+    uint numUsersTotal = 0;
+    
+    // Declare prizePool
+    string[] public prizePool = [
+        'ledger nano',
+        'tshirt',
+        'camera cover'
+        ];
+    
+    // Create the ticket object
+    struct Ticket{
+        address addr;
+        string prize;
+    }
+    
+    // Map Ticket ID to Ticket object
+    mapping(uint => Ticket) public tickets;
+    uint[] public registeredTickets;
+
+    //////////////////////////////////////////////////////////
+    //   Contract Functionality Section
+    //////////////////////////////////////////////////////////
+    function generateNewTicket(address userAddress) internal {
+        uint ticketID = numTicketsTotal;
+        tickets[ticketID].addr = userAddress;
+        registeredTickets.push(ticketID);
+        numTicketsTotal += 1;
+    }
+
+    function registerTicketsToUser (string username, address userAddress, uint numTickets) atStage(Stages.Registration) {
+        for (uint i = 0; i < numTickets; i++ ) {
+            generateNewTicket(userAddress);
+            ticketRegistered(username, userAddress, numTicketsTotal);
         }
-        nextStage();
+        numUsersTotal += 1;
+    }
+    
+    function remove(uint index)  internal returns(uint[]) {
+        if (index >= registeredTickets.length) return;
+
+        for (uint i = index; i<registeredTickets.length-1; i++){
+            registeredTickets[i] = registeredTickets[i+1];
+        }
+        delete registeredTickets[registeredTickets.length-1];
+        registeredTickets.length--;
+        return registeredTickets;
+    }
+    
+    function generate_random(uint maxNum, string salt) internal returns (uint) {
+        
+        uint random_number = ( 
+            uint(block.blockhash(block.number-1)) +
+            uint(sha3(sha3(salt))) + 
+            uint(sha3(nonce))
+        )%maxNum + 1;
+        nonce++;
+        return random_number;
+    }
+    
+    function randomChoiceFromRegisteredTickets() internal returns(uint choice) {
+        uint rand_index = generate_random(registeredTickets.length, 'salting');
+        choice = registeredTickets[rand_index];
+        // remove(rand_index);
+        return choice;
+    }
+    
+    // Meat of the contract here
+    function distributePrizes() public atStage(Stages.Disbursement) {
+        for (uint i; i < prizePool.length; i++) {
+            uint winner = randomChoiceFromRegisteredTickets();
+            tickets[winner].prize = prizePool[i];
+            prizeWon(tickets[winner].addr, tickets[winner].prize);
+        }
+    }
+    
+    //////////////////////////////////////////////////////////
+    //   Getter functions
+    //////////////////////////////////////////////////////////
+    
+    function getNumUsers() public constant returns (uint) {
+        return numUsersTotal;
+    } 
+    
+    function getNumTickets() public constant returns (uint) {
+        return numTicketsTotal;
     }
 
-    function getUserBalance( address userAddress ) returns (uint) {
-        return newToken.balanceOf(userAddress);
+    function getStage() constant public returns (uint d) {
+        d = uint256(stage);
     }
-
-    function getFundBalance() public constant returns (uint) {
-        return newToken.balanceOf(this);
-    }
-
 }

@@ -30,25 +30,7 @@ header {
   padding: 20px 15px 15px 15px;
   position: relative;
 }
- 
 
- 
-.new-task input {
-  box-sizing: border-box;
-  padding: 10px 0;
-  background: transparent;
-  border: none;
-  width: 100%;
-  padding-right: 80px;
-  font-size: 1em;
-}
- 
-.new-task input:focus{
-  outline: 0;
-}
- 
-
- 
 .delete {
   float: right;
   font-weight: bold;
@@ -70,4 +52,8 @@ header {
 
 .active-nav {
   background-color: blue;
+}
+
+.text-center {
+  text-align: center;
 }

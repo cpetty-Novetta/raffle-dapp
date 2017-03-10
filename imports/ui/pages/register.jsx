@@ -7,7 +7,21 @@ import { withRouter } from 'react-router-dom';
 class Register extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            numTicketsToRegister: 0,
+        }
 
+    }
+
+    countTicketsToRegister(company, reason) {
+        numTickets = 1;
+        if (company !== '') {
+            numTickets++;
+        }
+        if (reason !== '') {
+            numTickets++;
+        }
+        this.setState({ numTicketsToRegister: numTickets});
     }
 
     handleSubmit(event) {
@@ -22,6 +36,7 @@ class Register extends React.Component {
         var reason = ele.find("#reason").val();
 		var password = ele.find("#password").val();
 		var confirmPassword = ele.find("#confirmPassword").val();
+        console.log(company, reason);
 		if(password === confirmPassword && password !== "" && confirmPassword !== "") {
 			var accountInfo = {
 				email: email,
@@ -32,7 +47,11 @@ class Register extends React.Component {
 				if(er) {
 					Materialize.toast(er.reason, 4000);
 				} else {
-                    Session.set("loggedIn", true);
+                    Meteor.call('user.updateCompany', Meteor.userId(), company);
+                    Meteor.call('user.updateReason', Meteor.userId(), reason);
+                    this.countTicketsToRegister(company, reason);
+                    Meteor.call('user.updateNumTickets', Meteor.userId(), this.state.numTicketsToRegister);
+
 					Materialize.toast("You're logged in!", 4000);
                     this.props.history.push('/');
 				}
@@ -65,7 +84,7 @@ class Register extends React.Component {
                 </div>
                 <div className="row">
                     <div className="input-field col s12">
-                    <input id="username" type="username" className="validate" />
+                    <input id="username" type="text" className="validate" />
                     <label htmlFor="username">Username</label>
                     </div>
                 </div>
