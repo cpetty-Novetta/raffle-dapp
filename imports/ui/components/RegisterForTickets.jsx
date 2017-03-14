@@ -20,6 +20,7 @@ export default class RegisterForTickets extends Component {
     countTicketsToRegister() {
         numTickets = this.state.numTicketsToRegister;
         let user = this.props.currentUser;
+        numTickets--;
         if (user.company !== '') {
             numTickets--;
         }
@@ -61,15 +62,11 @@ export default class RegisterForTickets extends Component {
         var numTickets = 0;
         var userAddress = this.props.currentUser.account;
         var privateKey = new Buffer(this.props.currentUser.privKey, 'hex');
-        console.log('registered address: ', userAddress);
         var username = this.props.currentUser.username;
-        console.log('sent username: ', username);
         var email = this.props.currentUser.emails[0].address;
-        console.log('sent email: ', email);
         var companyName = this.props.currentUser.company;
-        console.log('sent company text: ', companyName);
         var reasonHere = this.props.currentUser.reason;
-        console.log('sent reason text: ', reasonHere);
+        const phone = this.props.currentUser.phone;
         if (email) {
             console.log("Adding ticket for email: ", email);
             numTickets++;
@@ -80,6 +77,10 @@ export default class RegisterForTickets extends Component {
         }
         if (reasonHere) {
             console.log("Adding ticket for reason here: ", reasonHere);
+            numTickets++;
+        }
+        if(phone) {
+            console.log("Adding ticket for phone number: ", phone);
             numTickets++;
         }
 
@@ -94,14 +95,8 @@ export default class RegisterForTickets extends Component {
 
         function signedTxAssembler(methodObj, contract_address) {
             var methodID = EthereumAbi.methodID(methodObj.name, methodObj.dataTypes).toString('hex');
-            console.log(methodID);
-
             var functionArgs = EthereumAbi.rawEncode(methodObj.dataTypes, methodObj.inputs).toString('hex');
-            console.log(functionArgs);
-
             var unsignedData = '0x' + methodID + functionArgs;
-            console.log("data: ", unsignedData);
-
             var rawTx = {
                 to: contract_address,
                 value: '0x00',
@@ -110,11 +105,9 @@ export default class RegisterForTickets extends Component {
                 gasLimit: "0x2fefd8",
                 nonce: '0x00',
             }
-
             var tx = new EthereumTx(rawTx);
             tx.sign(privateKey);
             var serializedTx = tx.serialize().toString('hex');
-            console.log("signed tx: ", serializedTx);
             return '0x' + serializedTx;
         }
 
@@ -122,7 +115,6 @@ export default class RegisterForTickets extends Component {
             if (err) {
                 console.log(err);
             } else {
-                console.log("Raw TX result: ", txHash);
                 web3.eth.getTransaction(txHash, (err, tx) => {
                     console.log("getTx Result: ", tx);
                 })
@@ -146,38 +138,46 @@ export default class RegisterForTickets extends Component {
         
 
         return (
-                <div className="register-div row" >
+                <div className="section" >
                 {this.props.currentUser.isRegistered ? '' :
-                    <div>
-                    <h4>Enter more information for more tickets!</h4>
-                    <p className="text-flow">You can register the following info for {this.state.numTicketsToRegister} more raffle tickets</p>
-                    <form className="new-register col s12" onSubmit={this.handleSubmit.bind(this)} >
-                        {! this.props.currentUser.company ?
+                    <div >
+                        {this.state.numTicketsToRegister !== 0 ?
+                            
+                            <p className="text-flow">You can register the following info for {this.state.numTicketsToRegister} more raffle tickets</p> :
+                            null
+                        }
+                        <form className="new-register col s12" onSubmit={this.handleSubmit.bind(this)} >
+                            {! this.props.currentUser.company ?
+                                <div className="row">
+                                    <div className="input-field col s12">
+                                        <input 
+                                            className="validate"
+                                            type="text"
+                                            ref="userCompany"
+                                            placeholder="Your company"
+                                        />
+                                    </div>
+                                </div> : null
+                            }
+                            {! this.props.currentUser.reason ?
                             <div className="row">
                                 <div className="input-field col s12">
                                     <input 
-                                        className="validate"
                                         type="text"
-                                        ref="userCompany"
-                                        placeholder="Your company"
+                                        ref="userReason"
+                                        placeholder="How'd you hear about this?"
                                     />
                                 </div>
-                            </div> : null
-                        }
-                        {! this.props.currentUser.reason ?
-                        <div className="row">
-                            <div className="input-field col s12">
-                                <input 
-                                    type="text"
-                                    ref="userReason"
-                                    placeholder="How'd you hear about this?"
-                                />
-                            </div>
-                        </div>: null
-                        }
-                        <div className="row">
-                            <button className="waves-effect waves-light btn">Register</button>
-                        </div> 
+                            </div>: null
+                            }
+                            {this.props.contractState[0].currentStage === "Registration" ?
+                                <div className="row">
+                                    <button className="waves-effect waves-light btn">Register for {this.props.currentUser.raffleTicketsToRegister} tickets now!</button>
+                                </div> : 
+                                <div className="row">
+                                    <button className="waves-effect waves-light btn disabled">Registration Closed!</button>
+                                </div>
+                            }
                     </form>
                     </div>
                 }

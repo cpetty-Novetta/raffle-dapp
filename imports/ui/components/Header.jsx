@@ -9,7 +9,7 @@ class Header extends React.Component {
         Meteor.logout((err) => {
           console.log(this.props)
             Materialize.toast("You've logged out", 4000);
-            this.props.history.push('/');
+            // this.props.history.push('/register');
         });
     }
 

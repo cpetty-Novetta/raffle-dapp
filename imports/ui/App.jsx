@@ -4,14 +4,15 @@ import { Meteor } from 'meteor/meteor';
 import { withRouter } from 'react-router-dom';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { RegisteredTickets } from '/imports/api/ethereumFunctions.js';
+import { RegisteredTickets, ContractState } from '/imports/api/ethereumFunctions.js';
 
 import AccountsUIWrapper from '/imports/ui/AccountsUIWrapper.jsx';
 import RaffleStats from '/imports/ui/components/RaffleStats';
 import RegisterForTickets from '/imports/ui/components/RegisterForTickets';
-import DistributeFunds from '/imports/ui/components/DistributeFunds';
-// import UserContainer from '/imports/ui/containers/UserContainer';
+import DistributePrizes from '/imports/ui/components/DistributePrizes';
+import PrizeWon from '/imports/ui/components/PrizeWon';
 import UserInfo from '/imports/ui/components/UserInfo';
+import NotLoggedIn from '/imports/ui/pages/notLoggedIn';
 
 
 // App component - represents the whole Appe
@@ -20,48 +21,9 @@ class App extends Component {
         super(props)
     }
 
-    /*renderUser(props)  {
-        console.log("renderUser props: ", props)
-        const currentUserName = this.props.currentUser && this.props.currentUser.username;
-        if (this.props.currentUser && ! this.state.userCreatedInRegister) {
-            // this.createUserFile();
-            this.setState({
-                userCreatedInRegister: true,
-            });
-        }
-
-        // var user_props = this.props.registeredUser.valueOf()
-
-        return (
-            <div className="userDiv">
-                <UserInfo currentUser={this.props.currentUser}/>
-                {this.props.currentUser.isRegistered ? '' :
-                    <RegisterForTickets currentUser={this.props.currentUser}/>    
-                }
-            </div>
-        )
-    }*/
-
-    createUserFile () {
-        var userId = this.props.currentUser._id;
-        Meteor.call('user.insertUser', userId);
-    }
-
-    renderAdmin() {
-        const currentUserName = this.props.currentUser && this.props.currentUser.username;
-        if (currentUserName === 'cpetty') {
-            
-            return (
-                <div className="adminDiv">
-                    <DistributeFunds />
-                </div> 
-            )
-        }
-    }
-
     checkAuth(props) {
         if (props.userLoaded && !props.currentUser) {
-            this.props.history.push('/login');
+            // this.props.history.push('/register');
         }
     }
 
@@ -72,27 +34,36 @@ class App extends Component {
     }
 
     render() {
-        if (Meteor.userId() !== null) {
-        return (
-            <div className='container'>
-                <header>
-                    <RaffleStats />
-
-                    <UserInfo currentUser={this.props.currentUser} userLoaded={this.props.userLoaded}/>
-                    <RegisterForTickets currentUser={this.props.currentUser} />
-
-                    {/*{this.renderAdmin()}*/}
-                </header>
-            </div>
-        );
+        if (this.props.userLoaded) {
+            return (
+                <div className='container'>
+                    <RaffleStats contractState={this.props.raffleContractState}/>
+                    <div className="divider" />
+                    <UserInfo 
+                        currentUser={this.props.currentUser} 
+                        userLoaded={this.props.userLoaded}
+                        raffleRegisteredTickets={this.props.raffleRegisteredTickets}
+                    />
+                    <div className="divider" />
+                    {this.props.raffleContractState[0].currentStage == "Disbursed" ? 
+                        this.props.raffleRegisteredTickets.map(ticket => (
+                            <PrizeWon {...ticket} key={ticket._id} currentUser={this.props.currentUser} />
+                        )) :
+                        null
+                    }
+                    <div className="divider" />
+                    <RegisterForTickets currentUser={this.props.currentUser} contractState={this.props.raffleContractState}/>
+                    <div className="divider" />
+                    {this.props.currentUser.username === 'cpetty' ?
+                        <DistributePrizes currentUser={this.props.currentUser} contractState={this.props.raffleContractState} /> :
+                        null
+                    }
+                </div>
+            );
         } else {
             return (
-                <div className="container">
-                    <header>
-                        <RaffleStats />
-                        <p className="flow-text">Please Log In or Register</p>
-                    </header>
-                </div>)
+                <NotLoggedIn />
+            )
         }
     }
 }
@@ -100,7 +71,8 @@ class App extends Component {
 App.PropTypes = {
     raffleContractState: PropTypes.object.isRequired,
     currentUser: PropTypes.object.isRequired,
-    userLoaded: PropTypes.bool
+    userLoaded: PropTypes.bool,
+    raffleRegisteredTickets: PropTypes.object,
 };
 
 App.ContextTypes = {
@@ -110,12 +82,14 @@ App.ContextTypes = {
 
 export default createContainer(() => {
     const handle = Meteor.subscribe('other-user-data');
-    Meteor.subscribe('raffleRegisteredTickets');
+    const ticketHandle = Meteor.subscribe('raffleRegisteredTickets');
+    const stateHandle = Meteor.subscribe('raffleContractState');
 
     return {
         currentUser: Meteor.user(),
         raffleRegisteredTickets: RegisteredTickets.find({}).fetch(),
-        userLoaded:  handle.ready(),
+        userLoaded:  Meteor.user() && handle.ready() && stateHandle.ready() && ticketHandle.ready(),
+        raffleContractState: ContractState.find({}).fetch(),
     };
 }, App);
 

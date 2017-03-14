@@ -11,6 +11,7 @@ if (Meteor.isServer) {
                 account: 1,
                 company: 1,
                 reason: 1,
+                phone: 1,
                 seed: 1,
                 privKey: 1,
                 isFunded: 1,
@@ -77,6 +78,17 @@ Meteor.methods({
         Meteor.users.update(userId, { $set: { reason: reason } });   
         console.log('Updated user reason text to ', reason)
     },
+    'user.updatePhone'(userId, phone) {
+        check(userId, String);
+        check(phone, String);
+
+        if (!this.userId) {
+            throw new Meteor.Error('not-authorized');
+        }
+
+        Meteor.users.update(userId, { $set: { phone: phone } });
+        console.log("Added phone number to user ", userId);
+    },
     'user.setRegistered'(userId, registeredItem, registeredValue) {
         check(userId, String);
         check(registeredItem, String);
@@ -105,19 +117,9 @@ Meteor.methods({
         Meteor.users.update(userId, { $set: { raffleTicketsRegistered: numTickets } })
         console.log("Updated potential tickets of user ", userId, " to ", numTickets);
     },
-    'user.insertNewRegisteredTicket'(address, ticketId) {
-        check(address, String);
-        check(ticketId, Number);
-
-        Meteor.users.update(
-            {account: address}, 
-            { $addToSet: { ticketsRegistered: ticketId } }
-        )
-    },
     'admin.fundAddress'(userId, addr) {
         check(addr, String);
 
-        // if (! this.isFunded) {
         web3.eth.sendTransaction({
             from: web3.eth.coinbase,
             to: addr,
@@ -125,12 +127,18 @@ Meteor.methods({
         }, function(err, result) {
             if (err) throw err;
 
-            console.log("Funded new user with ETH for transactions");
-            
+            console.log("Funded new user with ETH for transactions");            
         });
-        // }
 
         Meteor.users.update(userId, { $set: { isFunded: true } });
+    },
+    'sendVerificationLink'(userId) {
+        check(userId, String)
+        if (Meteor.userId() !== userId) {
+            throw new Meteor.error('not-authorized');
+        }
+
+        return Accounts.sendVerificationEmail( userId );
     }
 
 });

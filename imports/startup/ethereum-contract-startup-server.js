@@ -25,4 +25,3 @@ web3.eth.getAccounts((err, accs) => {
 
 RaffleWeb3 = web3.eth.contract(contract_abi);
 RaffleWeb3Instance = RaffleWeb3.at(contract_address);
-
