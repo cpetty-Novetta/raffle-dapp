@@ -1,21 +1,12 @@
 import { default as Web3 } from 'web3';
+EthereumAbi = require('ethereumjs-abi');
+ walletjs = require("ethereumjs-wallet");
+ EthereumTx = require("ethereumjs-tx");
 
 var json = require("/imports/smart-contracts/build/contracts/JailbreakRaffle.json");
-var contract_abi = json["abi"];
+contract_abi = json["abi"];
 var unlinked_binary = json["unlinked_binary"];
-var contract_address = json["networks"]["1900"].address
-
-
-// contract_address = json["networks"]["1000"]["address"];
-// var MyContract = web3.eth.contract(contract_abi);
-// raffle = MyContract.at(contract_address);
-// var result = raffle.getFundBalance()
-// console.log(result)
-
-// var contract = require("truffle-contract");
-// Raffle = contract(json);
-
-// Raffle.setProvider(new Web3.providers.HttpProvider('http://localhost:8545'));
+contract_address = json["networks"]["1900"].address
 
 web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 web3.eth.getAccounts((err, accs) => {
@@ -32,3 +23,5 @@ web3.eth.getAccounts((err, accs) => {
     coinbase = accs[0];
 })
 
+RaffleWeb3 = web3.eth.contract(contract_abi);
+RaffleWeb3Instance = RaffleWeb3.at(contract_address);

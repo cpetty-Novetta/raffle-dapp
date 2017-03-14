@@ -1,127 +1,95 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
+import { withRouter } from 'react-router-dom';
 import { createContainer } from 'meteor/react-meteor-data';
 
-import { RegisteredUsers } from '/imports/api/users.js';
-import { RaffleContractState } from '/imports/api/ethereumFunctions.js';
-
+import { RegisteredTickets, ContractState } from '/imports/api/ethereumFunctions.js';
 
 import AccountsUIWrapper from '/imports/ui/AccountsUIWrapper.jsx';
 import RaffleStats from '/imports/ui/components/RaffleStats';
 import RegisterForTickets from '/imports/ui/components/RegisterForTickets';
-import DistributeFunds from '/imports/ui/components/DistributeFunds';
+import DistributePrizes from '/imports/ui/components/DistributePrizes';
+import PrizeWon from '/imports/ui/components/PrizeWon';
 import UserInfo from '/imports/ui/components/UserInfo';
-var lightwallet = require('eth-lightwallet');
+import NotLoggedIn from '/imports/ui/pages/notLoggedIn';
+
 
 // App component - represents the whole Appe
 class App extends Component {
     constructor(props) {
         super(props)
-
-        this.state = {
-            hideCompleted: false,
-            totTicketsRegistered: 0,
-            userTicketsRegistered: 0,
-            userTokensWon: 0,
-            totUsersRegistered: 0,
-        };
-
-        this.renderAdmin.bind(this);
-        this.renderUser.bind(this);
-
-        // this.createUserFile.bind(this);
     }
 
-    refreshStats() {
-        // Refresh all contract and user stats after something is called.
-    }
-
-    renderUser  ()  {
-        const currentUserName = this.props.currentUser && this.props.currentUser.username;
-        if (this.props.currentUser && ! this.state.userCreatedInRegister) {
-            this.createUserFile();
-        }
-
-        var user_props = this.props.registeredUser.valueOf()
-
-        return (
-            <div className="userDiv">
-                <UserInfo currentUser={this.props.currentUser}/>
-                {this.props.currentUser.registered ? '' :
-                    <RegisterForTickets currentUser={this.props.currentUser}/>    
-                }
-            </div>
-        )
-    }
-
-    createUserFile () {
-        var userId = this.props.currentUser._id;
-        Meteor.call('user.insertUser', userId);
-    }
-
-    // getEthAddress() {
-    //     // const seed = this.props.currentUser && this.props.currentUser._id;
-    //     var seed = 'unhappy nerve cancel reject october fix vital pulse cash behind curious bicycle'
-        
-
-    renderAdmin() {
-        const currentUserName = this.props.currentUser && this.props.currentUser.username;
-        if (currentUserName === 'cpetty') {
-            
-            return (
-                <div className="adminDiv">
-                    <DistributeFunds />
-                </div> 
-            )
+    checkAuth(props) {
+        if (props.userLoaded && !props.currentUser) {
+            // this.props.history.push('/register');
         }
     }
 
-    componentDidMount() {
-        const printState = () => {
-            console.log(this.props.raffleContractState);
-            
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.userLoaded !== this.props.userLoaded) {
+            this.checkAuth(nextProps);
         }
-        printState();
     }
 
     render() {
-        return (
-            <div className='container'>
-                <header>
-                    <h1>Jailbreak Raffle Dapp</h1>
-
-                    <AccountsUIWrapper />
-
-                    <RaffleStats/>
-                    {/*<button onClick={this.getEthAddress}>Click for getEthAddress</button>*/}
-
-                    {/* this only shows if user is logged into an account */}
-                    {this.props.currentUser ? this.renderUser() : ''}
-
-                    {this.renderAdmin()}
-                </header>
-            </div>
-        );
+        if (this.props.userLoaded) {
+            return (
+                <div className='container'>
+                    <RaffleStats contractState={this.props.raffleContractState}/>
+                    <div className="divider" />
+                    <UserInfo 
+                        currentUser={this.props.currentUser} 
+                        userLoaded={this.props.userLoaded}
+                        raffleRegisteredTickets={this.props.raffleRegisteredTickets}
+                    />
+                    <div className="divider" />
+                    {this.props.raffleContractState[0].currentStage == "Disbursed" ? 
+                        this.props.raffleRegisteredTickets.map(ticket => (
+                            <PrizeWon {...ticket} key={ticket._id} currentUser={this.props.currentUser} />
+                        )) :
+                        null
+                    }
+                    <div className="divider" />
+                    <RegisterForTickets currentUser={this.props.currentUser} contractState={this.props.raffleContractState}/>
+                    <div className="divider" />
+                    {this.props.currentUser.username === 'cpetty' ?
+                        <DistributePrizes currentUser={this.props.currentUser} contractState={this.props.raffleContractState} /> :
+                        null
+                    }
+                </div>
+            );
+        } else {
+            return (
+                <NotLoggedIn />
+            )
+        }
     }
 }
 
 App.PropTypes = {
     raffleContractState: PropTypes.object.isRequired,
-    incompleteCount: PropTypes.number.isRequired,
     currentUser: PropTypes.object.isRequired,
-    registeredUser: PropTypes.object.isRequired,
+    userLoaded: PropTypes.bool,
+    raffleRegisteredTickets: PropTypes.object,
 };
 
+App.ContextTypes = {
+    router: PropTypes.object.isRequired,
+}
+
+
 export default createContainer(() => {
-    Meteor.subscribe('registeredUsers');
-    Meteor.subscribe('other-user-data');
-    Meteor.subscribe('raffleContractState');
+    const handle = Meteor.subscribe('other-user-data');
+    const ticketHandle = Meteor.subscribe('raffleRegisteredTickets');
+    const stateHandle = Meteor.subscribe('raffleContractState');
 
     return {
         currentUser: Meteor.user(),
-        registeredUser: RegisteredUsers.find({}).fetch(),
-        raffleContractState: RaffleContractState.find({}).fetch(),
+        raffleRegisteredTickets: RegisteredTickets.find({}).fetch(),
+        userLoaded:  Meteor.user() && handle.ready() && stateHandle.ready() && ticketHandle.ready(),
+        raffleContractState: ContractState.find({}).fetch(),
     };
 }, App);
 

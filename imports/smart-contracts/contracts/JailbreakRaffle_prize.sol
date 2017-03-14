@@ -1,6 +1,17 @@
 pragma solidity ^0.4.2;
 
-contract JailbreakRaffle {
+contract Raffle {
+    //////////////////////////////////////////////////////////
+    //   Contract Contsruction
+    //////////////////////////////////////////////////////////
+    string public prizeName;
+    uint public numPrizes;
+
+    function Raffle(string _prizeName, uint _numPrizes) {
+        prizeName = _prizeName;
+        numPrizes = _numPrizes;
+    }
+
     //////////////////////////////////////////////////////////
     //   Contract Stage Section
     //////////////////////////////////////////////////////////
@@ -34,7 +45,7 @@ contract JailbreakRaffle {
     //////////////////////////////////////////////////////////
     
     // Declare Events
-    event ticketRegistered(string _username, address _address, uint _ticketId, uint _numTicketsTotal, uint _numUsersTotal);
+    event ticketRegistered(string _username, address _address, string _prizeName, uint _ticketId, uint _numTicketsTotal);
     event stageChanged(uint _stage);
     event prizeWon(uint _ticketId, string _prize);
     
@@ -43,46 +54,35 @@ contract JailbreakRaffle {
     uint numTicketsTotal = 0;
     uint numUsersTotal = 0;
     
-    // Declare prizePool
-    string[] public prizePool = [
-        'ledger nano',
-        'tshirt',
-        'tshirt',
-        'tshirt'
-        'tshirt',
-        'tshirt',
-        'Bitcoin Book',
-        'Bitcoin Book'
-        ];
-    
     // Create the ticket object
     struct Ticket{
         address addr;
-        string prize;
+        bool won;
         uint ticketId;
     }
     
-    // Map Ticket ID to Ticket object
+    // Map Ticket ID to Ticket object for each prize pool
     mapping(uint => Ticket) public tickets;
+    
     uint[] public registeredTickets;
 
     //////////////////////////////////////////////////////////
     //   Contract Functionality Section
     //////////////////////////////////////////////////////////
-    function generateNewTicket(address userAddress) internal returns (uint) {
+    function generateNewTicket(string username, address userAddress) internal returns (uint) {
         uint ticketID = numTicketsTotal;
         tickets[ticketID].addr = userAddress;
         tickets[ticketID].ticketId = ticketID;
         registeredTickets.push(ticketID);
         numTicketsTotal += 1;
+        ticketRegistered(username, userAddress, prizeName, tickets[ticketId].ticketId, numTicketsTotal, numUsersTotal);
         return ticketID;
     }
 
     function registerTicketsToUser (string username, address userAddress, uint numTickets) atStage(Stages.Registration) {
-        numUsersTotal += 1;
+        numUsersTotal++;
         for (uint i = 0; i < numTickets; i++ ) {
-            uint ticketId = generateNewTicket(userAddress);
-            ticketRegistered(username, userAddress, tickets[ticketId].ticketId, numTicketsTotal, numUsersTotal);
+            uint ticketId = generateNewTicket(username, userAddress);
         }
     }
     
