@@ -8,8 +8,7 @@ export default class DistributePrizes extends Component {
     
         this.state = {
             userAddress: this.props.currentUser.account,
-            currentStage: this.props.contractState[0].currentStage,
-
+            currentStage: this.props.ledgerContractState[0].currentStage,
         };
 
         this.stages = {
@@ -28,7 +27,7 @@ export default class DistributePrizes extends Component {
     }
 
     serverWeb3Instance() {
-        var json = require("/imports/smart-contracts/build/contracts/JailbreakRaffle.json");
+        var json = require("/imports/smart-contracts/build/contracts/Raffle.json");
         contract_abi = json["abi"];
         contract_address = json["networks"]["1900"].address;
 
@@ -57,7 +56,13 @@ export default class DistributePrizes extends Component {
             if (err) {
                 console.log("err:  ", err);
             }
-            Meteor.call('updateStage');
+            Meteor.call('updateLedgerStage');
+        })
+        TshirtWeb3Instance.closeRegistration({from: web3.eth.coinbase}, (err) => {
+            if (err) {
+                console.log("err:  ", err);
+            }
+            Meteor.call('updateTshirtStage');
         })
         
     }
@@ -66,14 +71,25 @@ export default class DistributePrizes extends Component {
         RaffleWeb3Instance.distributePrizes({from: web3.eth.coinbase, gas: 500000}, function(err,result) {
             if (err) {
                 console.log("This is the error: ",err)
+            } else {
+                console.log(result)
+                console.log("Ledger prizes have been distributed!");
+                Meteor.call('updateLedgerStage');
             }
-            console.log(result)
-            console.log("Prizes have been distributed!");
+        })
+        TshirtWeb3Instance.distributePrizes({from: web3.eth.coinbase, gas: 500000}, function(err,result) {
+            if (err) {
+                console.log("This is the error: ",err)
+            } else {
+                console.log(result)
+                Meteor.call('updateTshirtStage');
+                console.log("Tshirt prizes have been distributed!");
+            }
         })
     }
 
     componentWillMount() {
-        this.serverWeb3Instance();
+        // this.serverWeb3Instance();
     }
  
     render() {
@@ -81,7 +97,7 @@ export default class DistributePrizes extends Component {
         return (
             <div className="section">
 
-                {this.props.contractState[0].currentStage === "Registration" ?
+                {this.props.ledgerContractState[0].currentStage === "Registration" ?
                     <div className="row">
                         <button className="waves-effect waves-light btn" onClick={this.closeRegistration}>Close Registration</button>
                     </div> : 
@@ -89,7 +105,7 @@ export default class DistributePrizes extends Component {
                         <button className="waves-effect waves-light btn disabled" onClick={this.closeRegistration}>Close Registration</button>
                     </div>
                 }
-                {this.props.contractState[0].currentStage === "Distribution" ?
+                {this.props.ledgerContractState[0].currentStage === "Distribution" ?
                     <div className="row" >
                         <button className="waves-effect waves-light btn" onClick={this.distributePrizes}>Distribute Funds</button>
                     </div> : 

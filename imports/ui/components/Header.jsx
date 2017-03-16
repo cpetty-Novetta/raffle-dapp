@@ -21,7 +21,7 @@ class Header extends React.Component {
     return (
           <nav style={navStyle}>
             <div className="nav-wrapper">
-              <NavLink to="/" className="brand-logo">Raffle Dapp</NavLink>
+              <NavLink to="/" className="brand-logo">Jailbreak Raffle Dapp</NavLink>
               {this.props.currentUser && this.props.currentUser._id ? 
               <ul id="nav-mobile" className="right">
                 <li id="nav-button" ><a onClick={this.logoutUser.bind(this)}>Logout</a></li>

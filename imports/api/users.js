@@ -9,6 +9,7 @@ if (Meteor.isServer) {
             {_id: this.userId},
             {fields: {
                 account: 1,
+                name: 1,
                 company: 1,
                 reason: 1,
                 phone: 1,
@@ -16,9 +17,8 @@ if (Meteor.isServer) {
                 privKey: 1,
                 isFunded: 1,
                 isRegistered: 1,
-                raffleTicketsRegistered: 1,
-                raffleTicketsToRegister: 1,
-                ticketsRegistered: 1,
+                numTicketsRegistered: 1,
+                numEarnedTickets: 1,
             }}
         )
     })
@@ -35,6 +35,16 @@ Meteor.methods({
             }
         })
         console.log("Inserted new user: ", userId);
+    },
+    'user.updateName'(userId, name) {
+        check(userId, String);
+        check(name, String);
+
+        if (!this.userId) {
+            throw new Meteor.Error('not-authorized');
+        }
+
+        Meteor.users.update(userId, { $set: { name: name} });
     },
     'user.updateAddress'(userId, addr) {
         check(userId, String);
@@ -89,6 +99,17 @@ Meteor.methods({
         Meteor.users.update(userId, { $set: { phone: phone } });
         console.log("Added phone number to user ", userId);
     },
+    'user.updateEarnedTickets'(userId, numTickets) {
+        check(userId, String);
+        check(numTickets, Number);
+
+        if (!this.userId) {
+            throw new Meteor.Error('not-authorized');
+        }
+
+        Meteor.users.update(userId, { $set: { numEarnedTickets: numTickets} });
+        console.log("Updated user ", userId, " to ", numTickets, " earned tickets.");
+    },
     'user.setRegistered'(userId, registeredItem, registeredValue) {
         check(userId, String);
         check(registeredItem, String);
@@ -103,19 +124,12 @@ Meteor.methods({
         Meteor.users.update(userId, { $set: obj });
         console.log('Updated users ', registeredItem, ' text to ', registeredValue );
     },
-    'user.updateNumTickets'(userId, numTickets) {
+    'user.updateTicketsRegistered'(userId, numTickets) {
         check(userId, String);
         check(numTickets, Number);
 
-        Meteor.users.update(userId, { $set: { raffleTicketsToRegister: numTickets } })
-        console.log("Successfully registered ", numTickets, " to user ", userId);
-    },
-    'user.updateNumTicketsRegistered'(userId, numTickets) {
-        check(userId, String);
-        check(numTickets, Number);
-
-        Meteor.users.update(userId, { $set: { raffleTicketsRegistered: numTickets } })
-        console.log("Updated potential tickets of user ", userId, " to ", numTickets);
+        Meteor.users.update(userId, { $set: { numTicketsRegistered: numTickets } })
+        console.log(numTickets, " total registered to smart contracts by user ", userId);
     },
     'admin.fundAddress'(userId, addr) {
         check(addr, String);
@@ -124,13 +138,16 @@ Meteor.methods({
             from: web3.eth.coinbase,
             to: addr,
             value: web3.toWei(1,'ether')
-        }, function(err, result) {
-            if (err) throw err;
+        }, Meteor.bindEnvironment(function(err, result) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("Funded new user with ETH for transactionsm, Result: ", result);            
+                Meteor.users.update(userId, { $set: { isFunded: true } });
+            }
+        }));
 
-            console.log("Funded new user with ETH for transactions");            
-        });
-
-        Meteor.users.update(userId, { $set: { isFunded: true } });
+        
     },
     'sendVerificationLink'(userId) {
         check(userId, String)

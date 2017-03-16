@@ -44,16 +44,19 @@ class Register extends React.Component {
 
         var firstName = ele.find("#first_name").val();
         var lastName = ele.find("#last_name").val();
+        var fullName = firstName + ' ' + lastName;
         let phone = ele.find('#phone').val();
-        let formattedNumber = this.verifyPhoneNumber(phone);
-        console.log(formattedNumber)
+        let formattedNumber;
+        if (phone !== '') {
+            formattedNumber = this.verifyPhoneNumber(phone);
+        }
         var username = ele.find('#username').val();
 		var email = ele.find("#email").val();
         var company = ele.find("#company").val();
         var reason = ele.find("#reason").val();
 		var password = ele.find("#password").val();
 		var confirmPassword = ele.find("#confirmPassword").val();
-        if(formattedNumber === undefined) {
+        if(formattedNumber === undefined && phone !== '') {
             throw new Meteor.Error("Fix your phone number.");
         } 
 		else if(password === confirmPassword && password !== "" && confirmPassword !== "") {
@@ -66,11 +69,12 @@ class Register extends React.Component {
                 if(er) {
                     Materialize.toast(er.reason, 4000);
                 } else {
+                    Meteor.call('user.updateName', Meteor.userId(), fullName);
                     Meteor.call('user.updateCompany', Meteor.userId(), company);
                     Meteor.call('user.updateReason', Meteor.userId(), reason);
                     Meteor.call('user.updatePhone', Meteor.userId(), formattedNumber);
                     this.countTicketsToRegister(company, reason, formattedNumber);
-                    Meteor.call('user.updateNumTickets', Meteor.userId(), this.state.numTicketsToRegister);
+                    Meteor.call('user.updateEarnedTickets', Meteor.userId(), this.state.numTicketsToRegister);
                     Materialize.toast("You're logged in!", 4000);
                     this.props.history.push('/');
                 }
@@ -93,7 +97,7 @@ class Register extends React.Component {
                 <form className="col offset-s4 s4" onSubmit={this.handleSubmit.bind(this)}>
                 <div className="row">
                     <div className="input-field col s6">
-                    <input id="first_name" type="text" className="validate" />
+                    <input id="first_name" type="text" className="validate" required />
                     <label htmlFor="first_name">First Name</label>
                     </div>
                     <div className="input-field col s6">
@@ -126,7 +130,7 @@ class Register extends React.Component {
                 <div className="row">
                      <div className="input-field col s12">
                         <select id="reason" value=''>
-                            <option value='' disabled>How did you hear about this?</option>
+                            <option value='' disabled >How did you hear about this?</option>
                             <option value="Cyberwire Podcast">Cyberwire</option>
                             <option value="The Bitcoin Podcast">The Bitcoin Podcast</option>
                             <option value="Novetta">Novetta</option>
