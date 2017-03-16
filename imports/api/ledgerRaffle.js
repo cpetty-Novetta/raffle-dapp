@@ -2,11 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Mongo } from 'meteor/mongo';
 
-export const RegisteredTickets = new Mongo.Collection('raffleRegisteredTickets');
-export const ContractState = new Mongo.Collection('raffleContractState');
+export const LedgerRegisteredTickets = new Mongo.Collection('ledgerRegisteredTickets');
+export const LedgerContractState = new Mongo.Collection('ledgerContractState');
 
-var RaffleWeb3 = web3.eth.contract(contract_abi);
-RaffleWeb3Instance = RaffleWeb3.at(contract_address);
+// var RaffleWeb3 = web3.eth.contract(contract_abi);
+// RaffleWeb3Instance = RaffleWeb3.at(contract_address);
 
 const stages = {
     0: 'Registration',
@@ -16,11 +16,11 @@ const stages = {
 
 if (Meteor.isServer) {
     // Publications to client
-     Meteor.publish('raffleContractState', function raffleContractStatePublication() {
-         return contractState = ContractState.find({_id: "contractState"})
+     Meteor.publish('ledgerContractState', function ledgerContractStatePublication() {
+         return LedgerContractState.find({_id: "contractState"})
      })
-     Meteor.publish('raffleRegisteredTickets', function raffleRegisteredTicketsPublication() {
-         return RegisteredTickets.find();
+     Meteor.publish('ledgerRegisteredTickets', function ledgerRegisteredTicketsPublication() {
+         return LedgerRegisteredTickets.find();
      });
 
     function adminUser(userId) {
@@ -28,7 +28,7 @@ if (Meteor.isServer) {
         return (userId && adminUser && userId === adminUser._id);
     }
 
-    ContractState.allow({
+    LedgerContractState.allow({
         insert: function(userId, lugar){
             return adminUser(userId);
         },
@@ -40,25 +40,29 @@ if (Meteor.isServer) {
         }
     });
 
-    var events = RaffleWeb3Instance.allEvents({from: 0, toBlock: 'latest'});
-    events.watch( Meteor.bindEnvironment(function( err, result ) {
+    var ledgerEvents = RaffleWeb3Instance.allEvents({from: 0, toBlock: 'latest'});
+    ledgerEvents.watch( Meteor.bindEnvironment(function( err, result ) {
     if (err) {
         console.log(err);
     }
+    // uncomment lower line to see all events as they happen
+    // console.log(result)
     // add the transaction to our RegisterEvents collection
         if(result['event'] == 'ticketRegistered') {
             const address = result.args._address.valueOf();
             const ticketId = result.args._ticketId.valueOf();
+            const username = result.args._username.valueOf();
             const numTicketsTotal = result.args._numTicketsTotal.valueOf();
             const numUsersTotal = result.args._numUsersTotal.valueOf();
-            console.log("Adding ", ticketId, " to the database");
+            console.log("Adding Ledger ticket", ticketId, " to the database");
             
-            RegisteredTickets.update(
+            LedgerRegisteredTickets.update(
                 ticketId, 
-                { address: address },
+                { address: address,
+                  username: username },
                 { upsert: true }
             )
-            ContractState.update(
+            LedgerContractState.update(
                 'contractState',
                 { $set: {
                     numTicketsTotal: numTicketsTotal,
@@ -68,30 +72,43 @@ if (Meteor.isServer) {
             )
         } else if (result['event'] == 'stageChanged') {
             const currentStage = stages[result.args._stage.valueOf()];
-            ContractState.update(
+            LedgerContractState.update(
                 "contractState",
                 { $set: { currentStage: currentStage }},
                 {upsert: true}
             )
-            console.log("Set contract stage to ", currentStage);
+            console.log("Set ledger contract stage to ", currentStage);
             
         } else if (result['event'] == 'prizeWon') {
             const prizeWon = result.args._prize.valueOf();
             const ticketId = result.args._ticketId.valueOf();
-            RegisteredTickets.update(
+            LedgerRegisteredTickets.update(
                 ticketId,
-                { $set: { prize: prizeWon } }
+                { $set: { prize: prizeWon, winner: true } }
             )
             console.log("ticket ", ticketId, " has won ", prizeWon);
+        } else if (result['event'] == "raffleInitiated") {
+            const prizeName = result.args._prizeName.valueOf();
+            const numPrizes = result.args._numPrizes.valueOf();
+            LedgerContractState.update(
+                'constractState',
+                { $set: { 
+                    prizeName: prizeName,
+                    numPrizes: numPrizes,
+                }}
+            )
+            console.log('recording ledger raffle initiation state')
         }
 
     }))
 }
 
 Meteor.methods({
-    'updateStage'() {
-        RaffleWeb3Instance.getStage.call(function(err, stage) {
-            console.log(stage.valueOf())
-        })
+    'updateLedgerStage'() {
+        RaffleWeb3Instance.getStage(Meteor.bindEnvironment(function(err, stage) {
+            LedgerContractState.update('contractState',
+                { $set: { currentStage: stages[stage.valueOf()]} }
+            )
+        }))
     }
 })

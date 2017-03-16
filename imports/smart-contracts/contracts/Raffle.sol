@@ -6,12 +6,14 @@ contract Raffle {
     //////////////////////////////////////////////////////////
     string public prizeName;
     uint public numPrizes;
+    event raffleInitiated(string _prizeName, uint _numprizes);
 
     function Raffle(string _prizeName, uint _numPrizes) {
         prizeName = _prizeName;
         numPrizes = _numPrizes;
+        raffleInitiated(prizeName, numPrizes);
     }
-
+    
     //////////////////////////////////////////////////////////
     //   Contract Stage Section
     //////////////////////////////////////////////////////////
@@ -45,7 +47,7 @@ contract Raffle {
     //////////////////////////////////////////////////////////
     
     // Declare Events
-    event ticketRegistered(string _username, address _address, string _prizeName, uint _ticketId, uint _numTicketsTotal);
+    event ticketRegistered(string _username, address _address, uint _ticketId, uint _numTicketsTotal, uint _numUsersTotal);
     event stageChanged(uint _stage);
     event prizeWon(uint _ticketId, string _prize);
     
@@ -57,44 +59,46 @@ contract Raffle {
     // Create the ticket object
     struct Ticket{
         address addr;
-        bool won;
+        string prize;
         uint ticketId;
     }
     
-    // Map Ticket ID to Ticket object for each prize pool
+    // Map Ticket ID to Ticket object
     mapping(uint => Ticket) public tickets;
+    uint[] public ticketPool;
     
-    uint[] public registeredTickets;
+    mapping(address => bool) public userHasWon;
+    
 
     //////////////////////////////////////////////////////////
     //   Contract Functionality Section
     //////////////////////////////////////////////////////////
-    function generateNewTicket(string username, address userAddress) internal returns (uint) {
+    function generateNewTicket(address userAddress) internal returns (uint) {
         uint ticketID = numTicketsTotal;
         tickets[ticketID].addr = userAddress;
         tickets[ticketID].ticketId = ticketID;
-        registeredTickets.push(ticketID);
+        ticketPool.push(ticketID);
         numTicketsTotal += 1;
-        ticketRegistered(username, userAddress, prizeName, tickets[ticketId].ticketId, numTicketsTotal, numUsersTotal);
         return ticketID;
     }
 
     function registerTicketsToUser (string username, address userAddress, uint numTickets) atStage(Stages.Registration) {
-        numUsersTotal++;
+        numUsersTotal += 1;
         for (uint i = 0; i < numTickets; i++ ) {
-            uint ticketId = generateNewTicket(username, userAddress);
+            uint ticketId = generateNewTicket(userAddress);
+            ticketRegistered(username, userAddress, tickets[ticketId].ticketId, numTicketsTotal, numUsersTotal);
         }
     }
     
     function remove(uint index)  internal returns(uint[]) {
-        if (index >= registeredTickets.length) return;
+        if (index >= ticketPool.length) return;
 
-        for (uint i = index; i<registeredTickets.length-1; i++){
-            registeredTickets[i] = registeredTickets[i+1];
+        for (uint i = index; i<ticketPool.length-1; i++){
+            ticketPool[i] = ticketPool[i+1];
         }
-        delete registeredTickets[registeredTickets.length-1];
-        registeredTickets.length--;
-        return registeredTickets;
+        delete ticketPool[ticketPool.length-1];
+        ticketPool.length--;
+        return ticketPool;
     }
     
     function generate_random(uint maxNum, string salt) internal returns (uint) {
@@ -108,19 +112,23 @@ contract Raffle {
         return random_number;
     }
     
-    function randomChoiceFromRegisteredTickets() internal returns(uint choice) {
-        uint rand_index = generate_random(registeredTickets.length, 'salting');
-        uint winningIndex = registeredTickets[rand_index];
+    function randomChoiceFromticketPool() internal returns(uint choice) {
+        uint rand_index = generate_random(ticketPool.length, 'salting');
+        uint winningIndex = ticketPool[rand_index];
         remove(rand_index);
         return winningIndex;
     }
     
     // Meat of the contract here
     function distributePrizes() public atStage(Stages.Disbursement) {
-        for (uint i = 0; i < prizePool.length; i++) {
-            uint winner = randomChoiceFromRegisteredTickets();
-            tickets[winner].prize = prizePool[i];
-            prizeWon(tickets[winner].ticketId, tickets[winner].prize);
+        for (uint i = 0; i < numPrizes; i++) {
+            uint winner = randomChoiceFromticketPool();
+            address winningAddress = tickets[winner].addr;
+            if (! userHasWon[winningAddress]) {
+                tickets[winner].prize = prizeName;
+                prizeWon(tickets[winner].ticketId, tickets[winner].prize);
+                userHasWon[winningAddress] = true;
+            }
         }
         nextStage();
     }
@@ -128,7 +136,6 @@ contract Raffle {
     //////////////////////////////////////////////////////////
     //   Getter functions
     //////////////////////////////////////////////////////////
-    
     function getNumUsers() public constant returns (uint) {
         return numUsersTotal;
     } 

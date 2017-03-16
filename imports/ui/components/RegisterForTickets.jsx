@@ -58,74 +58,7 @@ export default class RegisterForTickets extends Component {
         }
     }
 
-    registerUser () {
-        var numTickets = 0;
-        var userAddress = this.props.currentUser.account;
-        var privateKey = new Buffer(this.props.currentUser.privKey, 'hex');
-        var username = this.props.currentUser.username;
-        var email = this.props.currentUser.emails[0].address;
-        var companyName = this.props.currentUser.company;
-        var reasonHere = this.props.currentUser.reason;
-        const phone = this.props.currentUser.phone;
-        if (email) {
-            console.log("Adding ticket for email: ", email);
-            numTickets++;
-        }
-        if (companyName) {
-            console.log("Adding ticket for company name: ", companyName);
-            numTickets++;
-        }
-        if (reasonHere) {
-            console.log("Adding ticket for reason here: ", reasonHere);
-            numTickets++;
-        }
-        if(phone) {
-            console.log("Adding ticket for phone number: ", phone);
-            numTickets++;
-        }
 
-        var contractState = {
-            registerTicketsToUser: {
-                name: "registerTicketsToUser",
-                dataTypes: ["string", "address", "uint"],
-                inputs: [username, userAddress, numTickets],
-            }
-        }
-
-
-        function signedTxAssembler(methodObj, contract_address) {
-            var methodID = EthereumAbi.methodID(methodObj.name, methodObj.dataTypes).toString('hex');
-            var functionArgs = EthereumAbi.rawEncode(methodObj.dataTypes, methodObj.inputs).toString('hex');
-            var unsignedData = '0x' + methodID + functionArgs;
-            var rawTx = {
-                to: contract_address,
-                value: '0x00',
-                data: unsignedData,
-                gasPrice: 500000,
-                gasLimit: "0x2fefd8",
-                nonce: '0x00',
-            }
-            var tx = new EthereumTx(rawTx);
-            tx.sign(privateKey);
-            var serializedTx = tx.serialize().toString('hex');
-            return '0x' + serializedTx;
-        }
-
-        web3.eth.sendRawTransaction(signedTxAssembler(contractState.registerTicketsToUser, contract_address), (err,txHash) => {
-            if (err) {
-                console.log(err);
-            } else {
-                web3.eth.getTransaction(txHash, (err, tx) => {
-                    console.log("getTx Result: ", tx);
-                })
-                web3.eth.getTransactionReceipt(txHash, (err, receipt) => {
-                        console.log("tx receipt: ", receipt);
-                })
-                Meteor.call('user.setRegistered', this.props.currentUser._id, 'isRegistered', true);
-                Meteor.call('user.updateNumTicketsRegistered', this.props.currentUser._id, this.state.numTicketsToRegister)
-            }
-        });
-    }
 
     componentDidMount() {
         const dummy = () => {
@@ -170,7 +103,7 @@ export default class RegisterForTickets extends Component {
                                 </div>
                             </div>: null
                             }
-                            {this.props.contractState[0].currentStage === "Registration" ?
+                            {this.props.ledgerContractState[0].currentStage === "Registration" ?
                                 <div className="row">
                                     <button className="waves-effect waves-light btn">Register for {this.props.currentUser.raffleTicketsToRegister} tickets now!</button>
                                 </div> : 
