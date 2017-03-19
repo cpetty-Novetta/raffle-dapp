@@ -343,7 +343,7 @@
       },
       "links": {},
       "address": "0x9d50c31421d2a2dff4bd2ebb532d1c1bbadb51f7",
-      "updated_at": 1489688629956
+      "updated_at": 1489933353352
     },
     "1488968319365": {
       "events": {
@@ -576,8 +576,75 @@
       "links": {},
       "address": "0x7787dee995b55bfadd4aee8a89b043504d7832ee",
       "updated_at": 1489272606367
+    },
+    "1489713545448": {
+      "links": {},
+      "events": {
+        "0xb157ac2ca36f8715a5b0a2a6992dd9840c4ceea9b08572973891b4e73b7d51ba": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_username",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "_address",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_ticketId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_numTicketsTotal",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_numUsersTotal",
+              "type": "uint256"
+            }
+          ],
+          "name": "ticketRegistered",
+          "type": "event"
+        },
+        "0x9b81842605af0e5e5ea930976837a6cf8ddae4c365030c958a17eb8fe380c4f5": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_stage",
+              "type": "uint256"
+            }
+          ],
+          "name": "stageChanged",
+          "type": "event"
+        },
+        "0xe0c8362a5b8846dd3c82ce528209dd4085d0bcb5cc1e36c4ee27e4cda10c62a0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_ticketId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_prize",
+              "type": "string"
+            }
+          ],
+          "name": "prizeWon",
+          "type": "event"
+        }
+      },
+      "updated_at": 1489713567811
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1489688629956
+  "updated_at": 1489933353352
 }

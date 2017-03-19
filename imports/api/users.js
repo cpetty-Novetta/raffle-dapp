@@ -19,6 +19,9 @@ if (Meteor.isServer) {
                 isRegistered: 1,
                 numTicketsRegistered: 1,
                 numEarnedTickets: 1,
+                earnedAllTickets: 1,
+                nonce: 1,
+                isMining: 1,
             }}
         )
     })
@@ -107,7 +110,17 @@ Meteor.methods({
             throw new Meteor.Error('not-authorized');
         }
 
-        Meteor.users.update(userId, { $set: { numEarnedTickets: numTickets} });
+        let earnedAllTickets;
+        if (numTickets === 6) {
+            earnedAllTickets = true;
+        } else {
+            earnedAllTickets = false;
+        }
+
+        Meteor.users.update(userId, { $set: { 
+            numEarnedTickets: numTickets,
+            earnedAllTickets: earnedAllTickets,
+        } });
         console.log("Updated user ", userId, " to ", numTickets, " earned tickets.");
     },
     'user.setRegistered'(userId, registeredItem, registeredValue) {
@@ -131,6 +144,22 @@ Meteor.methods({
         Meteor.users.update(userId, { $set: { numTicketsRegistered: numTickets } })
         console.log(numTickets, " total registered to smart contracts by user ", userId);
     },
+    'user.increaseNonce'(userId, nonce) {
+        Meteor.users.update(userId, { $set: { nonce: nonce + 1 } },
+            {upsert: true})
+
+        return nonce + 1;
+    },
+    'user.isMining'(userId, isMining) {
+        check(userId, String);
+        check(isMining, Boolean);
+
+        if (! this.userId) {
+            throw new Meteor.Error('not-authorized');
+        }
+
+        Meteor.users.update(userId, { $set: {isMining: isMining} })
+    },
     'admin.fundAddress'(userId, addr) {
         check(addr, String);
 
@@ -138,12 +167,19 @@ Meteor.methods({
             from: web3.eth.coinbase,
             to: addr,
             value: web3.toWei(1,'ether')
-        }, Meteor.bindEnvironment(function(err, result) {
+        }, Meteor.bindEnvironment(function(err, hash) {
             if (err) {
                 console.log(err);
             } else {
-                console.log("Funded new user with ETH for transactionsm, Result: ", result);            
-                Meteor.users.update(userId, { $set: { isFunded: true } });
+                Meteor.users.update(userId,
+                    { $set: { isMining: true } },
+                    { upsert: true}
+                )
+                web3.eth.getTransactionReceiptMined(hash)
+                .then(function(receipt) {
+                    Meteor.users.update(userId, { $set: { isFunded: true, isMining: false } });
+                    console.log("Funded new user with ETH for transactions");
+                })
             }
         }));
 

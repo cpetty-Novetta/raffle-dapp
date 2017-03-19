@@ -21,3 +21,53 @@
   width: 100%;
   /*top: 50%;*/
 }
+
+.fill {
+    display: block;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+/*.fill img {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%
+}*/
+
+#hero {
+  background-image: url('/img/techtalks-marketo-promo.png');
+  background-size:cover;
+  position:relative;
+  width: 100%;
+}
+
+.header{
+  position:absolute;
+  top:50%;
+  text-align:center;
+  width:100%;
+  color:#fff;
+  font-size:36px;
+  -ms-transform: translate(0,-50%); /* IE 9 */
+    -webkit-transform: translate(0,-50%); /* Safari */
+    transform: translate(0,-50%);  
+
+}
+
+.card-content-div {
+  height: 20vh;
+}
+
+.card-image-div {
+  /*width: 15%;*/
+  margin: 1em;
+}
+
+.card-button-div {
+  margin-right: 30px;
+}
+
+.allocation-box {
+  height: 500px;
+  overflow: auto;
+}
