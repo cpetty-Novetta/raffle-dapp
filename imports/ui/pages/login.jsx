@@ -24,10 +24,10 @@ class Login extends React.Component {
     render () {
         const { from } = this.props.location.state || { from: { pathname: '/' } }
         return (
-        <div className="container">
+        <div className="section">
             <h4 className="text-center">Login</h4>
               <div className="row">
-                <form className="col offset-s4 s4" onSubmit={this.handleSubmit.bind(this)}>
+                <form className="col offset-s1 s10" onSubmit={this.handleSubmit.bind(this)}>
                     <div className="row">
                         <div className="input-field col s12">
                         <input id="email" type="email" className="validate" />

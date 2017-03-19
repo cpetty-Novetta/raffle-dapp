@@ -10,39 +10,15 @@ const EthereumAbi = require('ethereumjs-abi');
 let phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 let PNF = require('google-libphonenumber').PhoneNumberFormat;
 
-var json = require("/imports/smart-contracts/build/contracts/Raffle.json");
-var contract_abi = json["abi"];
-var unlinked_binary = json["unlinked_binary"];
-var contract_address = json["networks"]["1900"].address;
-
 import "/imports/ui/components/UserInfo.scss";
 
 export default class UserInfo extends Component {
-    constructor() {
-        super();
-        this.state = {
-            numTicketsToAllocate: 0,
-            earnedAllTickets: false,
-        }
-    }
+    constructor(props) {
+        super(props);
 
-    countElligibleTickets() {
-        numTickets = 1;
-        let user = this.props.currentUser;
-        if (user.company !== '') {
-            numTickets++;
+        this.state = {
+            userFunded: false,
         }
-        if (user.reason !== '') {
-            numTickets++;
-        }
-        if(user.phone !== '') {
-            numTickets++;
-        }
-        this.setState({ numTicketsToAllocate: numTickets});
-        if (user.reason !== '' && user.company !== '' && user.phone !== '') {
-            this.setState({earnedAllTickets: true})
-        }
-        Meteor.call('user.updateEarnedTickets', this.props.currentUser._id, numTickets);
     }
 
     verifyPhoneNumber(inputNumber) {
@@ -65,7 +41,9 @@ export default class UserInfo extends Component {
 
             Meteor.call('user.updateAddress', this.props.currentUser._id, address);
             Meteor.call('user.updatePrivKey', this.props.currentUser._id, privateKey.toString('hex'));
-            Meteor.call('admin.fundAddress', userId, address)
+            if (!this.props.currentUser.isFunded) {
+                Meteor.call('admin.fundAddress', userId, address);
+            }
         }
         if ( this.props.currentUser && this.props.currentUser.privKey) {
             console.log("recreating wallet from private key");
@@ -75,15 +53,32 @@ export default class UserInfo extends Component {
         }
     }
 
+    updateElligibleTickets() {
+        let numTickets = 3;
+        if (this.props.currentUser.company) {
+            numTickets++;
+        }
+        if (this.props.currentUser.reason) {
+            numTickets++;
+        }
+        if (this.props.currentUser.phone) {
+            numTickets++;
+        }
+        if (numTickets !== this.props.currentUser.numEarnedTickets) {
+            Meteor.call('user.updateEarnedTickets', this.props.currentUser._id, numTickets);
+        }
+    }
+
     handleSubmit(event) {
         event.preventDefault();
         var ele = $(event.target);
         const PhoneText = '';
         const CompanyText = '';
+        let formattedNumber;
         // Find the text field via the React ref
         if(ReactDOM.findDOMNode(this.refs.userPhone)) {
             const PhoneText = ReactDOM.findDOMNode(this.refs.userPhone).value.trim();
-            if (PhoneText !== '') {
+            if (PhoneText) {
                 formattedNumber = this.verifyPhoneNumber(PhoneText);
                 console.log(formattedNumber)
             }
@@ -97,11 +92,10 @@ export default class UserInfo extends Component {
             Meteor.call('user.updateCompany', this.props.currentUser._id, CompanyText);
         } 
         console.log(ele.find('#reason').val())
-        if (ele.find('#reason').val() !== '') {
+        if (ele.find('#reason').val()) {
             ReasonText = ele.find("#reason").val();
             Meteor.call('user.updateReason', this.props.currentUser._id, ReasonText);
         } 
-        this.countElligibleTickets();
         // Clear form
         if(ReactDOM.findDOMNode(this.refs.userPhone)) {
         ReactDOM.findDOMNode(this.refs.userPhone).value = '';
@@ -111,99 +105,102 @@ export default class UserInfo extends Component {
         }
     }
 
+    componentDidUpdate() {
+        this.updateElligibleTickets();
+    }
+
     componentDidMount() {
-        // console.log("UserInfo TshirtWeb3Instance: ",TshirtWeb3Instance)
-        this.countElligibleTickets();
-        // For Materialize Select element
         $('select').material_select();
         $('.collapsible').collapsible();
     }
 
     render() {
+        let isActive = "collapsible-header " + this.props.currentUser.numEarnedTickets === 6 ? "" : "active"; 
         if (! this.props.userLoaded ) {
             return (
                 <p>Loading info from server</p>
             )
         }
         return (
-            <div className="section">
-                <ul className="collapsible" data-collapsible="expandable">
-                    <li>
-                        <div className="collapsible-header">
-                            <h4 className="center">Currently Registered Information</h4>
+            <div>
+                    <div>
+                    {this.props.currentUser.isRegistered ? 
+                        <p className="flow-text">Tickets Locked with Smart Contract</p> : 
+                        <p className="flow-text">Elligible Tickets: {this.props.currentUser.numEarnedTickets}</p>
+                    }
+                    {this.props.currentUser.account && this.props.currentUser.isFunded ?  
+                        <p className="flow-text truncate">Ethereum Address: {this.props.currentUser.account}</p> :
+                        <p className="flow-text red-text">Getting and Funding Ethereum Address{this.getEthAddress()}</p>
+                    }                      
+                    <p className="flow-text">Name: {this.props.currentUser.name}</p>
+                    <p className="flow-text">Username: {this.props.currentUser.username}</p>
+                    <p className="flow-text">Email: {this.props.currentUser.emails[0].address}</p>
+                    {this.props.currentUser.phone ?
+                        <p className="flow-text">Phone: {this.props.currentUser.phone}</p> : 
+                        null
+                    }
+                    {this.props.currentUser.company ?
+                        <p className="flow-text">Company: {this.props.currentUser.company}</p> : 
+                        null
+                    }
+                    {this.props.currentUser.reason ?
+                        <p className="flow-text">Reason here: {this.props.currentUser.reason}</p> : 
+                        null
+                    }
+                    <form className="new-register col s12" onSubmit={this.handleSubmit.bind(this)} >
+                    {! this.props.currentUser.phone ?
+                        <div className="row">
+                            <div className="input-field col s12">
+                                <input 
+                                    className="validate"
+                                    type="text"
+                                    ref="userPhone"
+                                    placeholder="Your phone number 999-999-9999"
+                                />
+                            </div>
+                        </div> : null
+                    }
+                    {! this.props.currentUser.company ?
+                        <div className="row">
+                            <div className="input-field col s12">
+                                <input 
+                                    className="validate"
+                                    type="text"
+                                    ref="userCompany"
+                                    placeholder="Your company"
+                                />
+                            </div>
+                        </div> : null
+                    }
+                    {! this.props.currentUser.reason ?
+                    <div className="row">
+                        <div className="input-field col s12">
+                            <select id="reason" value=''>
+                                <option value='' disabled>How did you hear about this?</option>
+                                <option value="Cyberwire Podcast">Cyberwire</option>
+                                <option value="The Bitcoin Podcast">The Bitcoin Podcast</option>
+                                <option value="Novetta">Novetta</option>
+                                <option value="Stumbled in">Stumbled into here</option>
+                            </select>
+                            <label htmlFor="reason" />
                         </div>
-                        <div className="collapsible-body">
-                            {this.props.currentUser.isRegistered ? 
-                                <p className="flow-text">Tickets Locked with Smart Contract</p> : 
-                                <p className="flow-text">Elligible Tickets: {this.state.numTicketsToAllocate}</p>
-                            }
-                            {this.props.currentUser.account ?  
-                                <p className="flow-text">Ethereum Address: {this.props.currentUser.account}</p> :
-                                <p className="flow-text">Getting Ethereum Address{this.getEthAddress()}</p>
-                            }                      
-                            <p className="flow-text">Name: {this.props.currentUser.name}</p>
-                            <p className="flow-text">Username: {this.props.currentUser.username}</p>
-                            <p className="flow-text">Email: {this.props.currentUser.emails[0].address}</p>
-                            {this.props.currentUser.phone ?
-                                <p className="flow-text">Phone: {this.props.currentUser.phone}</p> : 
-                                null
-                            }
-                            {this.props.currentUser.company ?
-                                <p className="flow-text">Company: {this.props.currentUser.company}</p> : 
-                                null
-                            }
-                            {this.props.currentUser.reason ?
-                                <p className="flow-text">Reason here: {this.props.currentUser.reason}</p> : 
-                                null
-                            }
-                            <form className="new-register col s12" onSubmit={this.handleSubmit.bind(this)} >
-                            {! this.props.currentUser.phone ?
-                                <div className="row">
-                                    <div className="input-field col s12">
-                                        <input 
-                                            className="validate"
-                                            type="text"
-                                            ref="userPhone"
-                                            placeholder="Your phone number 999-999-9999"
-                                        />
-                                    </div>
-                                </div> : null
-                            }
-                            {! this.props.currentUser.company ?
-                                <div className="row">
-                                    <div className="input-field col s12">
-                                        <input 
-                                            className="validate"
-                                            type="text"
-                                            ref="userCompany"
-                                            placeholder="Your company"
-                                        />
-                                    </div>
-                                </div> : null
-                            }
-                            {! this.props.currentUser.reason ?
+                    </div>: null
+                    }
+                    {this.props.ledgerContractState[0].currentStage === "Registration" && !this.props.currentUser.earnedAllTickets  ?
+                        <div className="row center">
+                            <button className="waves-effect waves-light btn">Register for more tickets now!</button>
+                        </div> :
+                        <div className="row center">
                             <div className="row">
-                                <div className="input-field col s12">
-                                    <select id="reason" value=''>
-                                        <option value='' disabled>How did you hear about this?</option>
-                                        <option value="Cyberwire Podcast">Cyberwire</option>
-                                        <option value="The Bitcoin Podcast">The Bitcoin Podcast</option>
-                                        <option value="Novetta">Novetta</option>
-                                        <option value="Stumbled in">Stumbled into here</option>
-                                    </select>
-                                    <label htmlFor="reason" />
-                               </div>
-                            </div>: null
-                            }
-                            {this.props.ledgerContractState[0].currentStage === "Registration" && !this.state.earnedAllTickets  ?
-                                <div className="row">
-                                    <button className="waves-effect waves-light btn">Register for more tickets now!</button>
-                                </div> : null
-                            }
+                                <button className="waves-effect waves-light btn disabled">You've got max tickets!</button>
+                            </div>
+                            <div className="row">
+                                <span className="flow-text">Click on "Ticket Allocation" to register for prizes</span>
+                            </div>
+                        </div> 
+                    }
                     </form>
-                        </div>
-                    </li>
-                </ul>
+                </div>
             </div>
         )
     }

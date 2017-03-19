@@ -421,10 +421,95 @@
         }
       },
       "links": {},
-      "address": "0x6bd7f887241aee750066710eb637c24f5239dfa9",
-      "updated_at": 1489688629958
+      "address": "0xe2352d06531169eea78e27d3d801ddd462512009",
+      "updated_at": 1489933353354
+    },
+    "1489713545448": {
+      "events": {
+        "0x0cf3f7da9545a000bafa548fd21c59240bf0ae64d095792e8b7fa773899780b7": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_prizeName",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "_numprizes",
+              "type": "uint256"
+            }
+          ],
+          "name": "raffleInitiated",
+          "type": "event"
+        },
+        "0xb157ac2ca36f8715a5b0a2a6992dd9840c4ceea9b08572973891b4e73b7d51ba": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_username",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "name": "_address",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "_ticketId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_numTicketsTotal",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_numUsersTotal",
+              "type": "uint256"
+            }
+          ],
+          "name": "ticketRegistered",
+          "type": "event"
+        },
+        "0x9b81842605af0e5e5ea930976837a6cf8ddae4c365030c958a17eb8fe380c4f5": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_stage",
+              "type": "uint256"
+            }
+          ],
+          "name": "stageChanged",
+          "type": "event"
+        },
+        "0xe0c8362a5b8846dd3c82ce528209dd4085d0bcb5cc1e36c4ee27e4cda10c62a0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "_ticketId",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "_prize",
+              "type": "string"
+            }
+          ],
+          "name": "prizeWon",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x8150e6f5f2819871987538d3ef6fada9f97d9ffb",
+      "updated_at": 1489713567816
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1489688629958
+  "updated_at": 1489933353354
 }

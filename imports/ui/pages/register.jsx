@@ -10,22 +10,22 @@ class Register extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            numTicketsToRegister: 0,
+            numTicketsEarned: 3,
         }
     }
 
     countTicketsToRegister(company, reason, phone) {
-        numTickets = 1;
-        if (company !== '') {
+        let numTickets = 3;
+        if (company) {
             numTickets++;
         }
-        if (reason !== '') {
+        if (reason) {
             numTickets++;
         }
-        if (phone !== '') {
+        if (phone) {
             numTickets++;
         }
-        this.setState({ numTicketsToRegister: numTickets});
+        return numTickets;
     }
 
     verifyPhoneNumber(inputNumber) {
@@ -34,7 +34,7 @@ class Register extends React.Component {
             return phoneUtil.format(parsedNumber, PNF.INTERNATIONAL);
         }
         catch (e) {
-            Materialize.toast("Phone number is ill-formatted, try again. \n Ex: 800-555-1000", 4000);
+            Materialize.toast("Phone number is ill-formatted, try again. \n Ex: 111-222-3333", 4000);
         }
     }
 
@@ -56,6 +56,7 @@ class Register extends React.Component {
         var reason = ele.find("#reason").val();
 		var password = ele.find("#password").val();
 		var confirmPassword = ele.find("#confirmPassword").val();
+        var numTicketsEarned = this.countTicketsToRegister(company, reason, phone);
         if(formattedNumber === undefined && phone !== '') {
             throw new Meteor.Error("Fix your phone number.");
         } 
@@ -69,12 +70,11 @@ class Register extends React.Component {
                 if(er) {
                     Materialize.toast(er.reason, 4000);
                 } else {
-                    Meteor.call('user.updateName', Meteor.userId(), fullName);
-                    Meteor.call('user.updateCompany', Meteor.userId(), company);
-                    Meteor.call('user.updateReason', Meteor.userId(), reason);
-                    Meteor.call('user.updatePhone', Meteor.userId(), formattedNumber);
-                    this.countTicketsToRegister(company, reason, formattedNumber);
-                    Meteor.call('user.updateEarnedTickets', Meteor.userId(), this.state.numTicketsToRegister);
+                    Meteor.call('user.updateName', Meteor.userId(), fullName ? fullName : '');
+                    Meteor.call('user.updateCompany', Meteor.userId(), company ? company : '');
+                    Meteor.call('user.updateReason', Meteor.userId(), reason ? reason : '');
+                    Meteor.call('user.updatePhone', Meteor.userId(), formattedNumber ? formattedNumber : '');
+                    Meteor.call('user.updateEarnedTickets', Meteor.userId(), numTicketsEarned);
                     Materialize.toast("You're logged in!", 4000);
                     this.props.history.push('/');
                 }
@@ -91,10 +91,10 @@ class Register extends React.Component {
 
   render() {
     return (
-        <div className="container">
+        <div className="section">
             <h4 className="text-center">Register</h4>
               <div className="row">
-                <form className="col offset-s4 s4" onSubmit={this.handleSubmit.bind(this)}>
+                <form className="col offset-s1 s10" onSubmit={this.handleSubmit.bind(this)}>
                 <div className="row">
                     <div className="input-field col s6">
                     <input id="first_name" type="text" className="validate" required />
@@ -129,8 +129,8 @@ class Register extends React.Component {
                 </div>
                 <div className="row">
                      <div className="input-field col s12">
-                        <select id="reason" value=''>
-                            <option value='' disabled >How did you hear about this?</option>
+                        <select className="browser-default" id="reason">
+                            <option value='' disabled selected="selected">How did you hear about this?</option>
                             <option value="Cyberwire Podcast">Cyberwire</option>
                             <option value="The Bitcoin Podcast">The Bitcoin Podcast</option>
                             <option value="Novetta">Novetta</option>
@@ -152,7 +152,7 @@ class Register extends React.Component {
                     <label htmlFor="confirmPassword"> ConfirmPassword</label>
                     </div>
                 </div>
-                <div className="row">
+                <div className="row center">
                     <button className="waves-effect waves-light btn btc-block">Register</button>
                 </div>
                 </form>

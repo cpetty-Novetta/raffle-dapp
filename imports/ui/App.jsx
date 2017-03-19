@@ -6,8 +6,13 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { LedgerRegisteredTickets, LedgerContractState } from '/imports/api/ledgerRaffle.js';
 import { TshirtRegisteredTickets, TshirtContractState } from '/imports/api/tshirtRaffle.js';
+import { BitcoinBookContractState, BitcoinBookRegisteredTickets } from '/imports/api/bitcoinBookRaffle.js';
+import { GraphBookContractState, GraphBookRegisteredTickets } from '/imports/api/graphBookRaffle.js';
+import { DappBookContractState, DappBookRegisteredTickets } from '/imports/api/dappBookRaffle.js';
+import { InternetBookContractState, InternetBookRegisteredTickets } from '/imports/api/internetBookRaffle.js';
+import { MakersBookContractState, MakersBookRegisteredTickets } from '/imports/api/makersBookRaffle.js';
 
-import AccountsUIWrapper from '/imports/ui/AccountsUIWrapper.jsx';
+import MiningTransaction from '/imports/ui/components/MiningTransaction';
 import RaffleStats from '/imports/ui/components/RaffleStats';
 import AllocateTickets from '/imports/ui/components/AllocateTickets';
 import RegisterForTickets from '/imports/ui/components/RegisterForTickets';
@@ -37,41 +42,75 @@ class App extends Component {
         }
     }
 
+    componentDidMount() {
+        $('.collapsible').collapsible({
+            accordion: false, // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+            onOpen: function(el) { alert('Open'); }, // Callback for Collapsible open
+            onClose: function(el) { alert('Closed'); } // Callback for Collapsible close
+        });
+    }
+
     render() {
         if (this.props.userLoaded) {
-            // console.log(this.props)
             return (
                 <div className='container'>
-                    <RaffleStats 
-                        currentUser={this.props.currentUser}
-                        ledgerContractState={this.props.ledgerContractState} 
-                        ledgerRegisteredTickets={this.props.ledgerRegisteredTickets}
-                        tshirtContractState={this.props.tshirtContractState}
-                        tshirtRegisteredTickets={this.props.tshirtRegisteredTickets}
-                    />
-                    <div className="divider" />
-                    <UserInfo 
-                        currentUser={this.props.currentUser} 
-                        userLoaded={this.props.userLoaded}
-                        ledgerRegisteredTickets={this.props.ledgerRegisteredTickets}
-                        ledgerContractState={this.props.ledgerContractState}
-                    />
-                    <div className="divider" />
-                    {this.props.currentUser.isRegistered ? null :
-                    <AllocateTickets 
-                        numTicketsToRegister={this.props.raffleTicketsToRegister}
-                        currentUser={this.props.currentUser}
-                    />
+                    {this.props.currentUser.isMining ?
+                        <MiningTransaction /> : null
                     }
-                    {this.props.ledgerContractState[0].currentStage == "Disbursed" ? 
-                        this.props.ledgerRegisteredTickets.map(ticket => (
-                            <PrizeWon {...ticket} key={ticket._id} currentUser={this.props.currentUser} />
-                        )) :
-                        null
-                    }
-                    <TshirtPrizeContainer {...this.props} />
-                    <div className="divider" />
-                    <RegisterForTickets currentUser={this.props.currentUser} ledgerContractState={this.props.ledgerContractState}/>
+                    <div className="section">
+                        <ul className="collapsible popout" data-collapsible="accordion">
+                            <li>
+                                <div className="active collapsible-header">
+                                    <h4 className="center">Your Registered Information</h4>
+                                </div>
+                                <div className="collapsible-body">
+                                    <UserInfo 
+                                        currentUser={this.props.currentUser} 
+                                        userLoaded={this.props.userLoaded}
+                                        ledgerRegisteredTickets={this.props.ledgerRegisteredTickets}
+                                        ledgerContractState={this.props.ledgerContractState}
+                                    />
+                                </div>
+                            </li>
+                            <li>
+                                <div className="collapsible-header">
+                                    <h4 className="center">Ticket Allocation</h4>
+                                </div>
+                                <div className="collapsible-body">
+                                    {this.props.currentUser.isRegistered ? null :
+                                        <AllocateTickets 
+                                            numTicketsToRegister={this.props.raffleTicketsToRegister}
+                                            currentUser={this.props.currentUser}
+                                        />
+                                    }
+                                </div>
+                            </li>
+                            <li>
+                                <div className="collapsible-header">
+                                    <h4 className="center">Raffle Prize Statistics</h4>
+                                </div>
+                                <div className="collapsible-body">
+                                    <RaffleStats 
+                                        {...this.props}
+                                    />
+                                </div>
+                            </li>
+                            <li>
+                                <div className="collapsible-header">
+                                    <h4 className="center">Winning Tickets!</h4>
+                                </div>
+                                <div className="collapsible-body">
+                                    {this.props.ledgerContractState[0].currentStage == "Disbursed" ? 
+                                        this.props.ledgerRegisteredTickets.map(ticket => (
+                                            <PrizeWon {...ticket} key={ticket._id} currentUser={this.props.currentUser} />
+                                        )) :
+                                        null
+                                    }
+                                    <TshirtPrizeContainer {...this.props} />
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
                     <div className="divider" />
                     {this.props.currentUser.username === 'cpetty' ?
                         <DistributePrizes currentUser={this.props.currentUser} ledgerContractState={this.props.ledgerContractState} /> :
@@ -106,17 +145,42 @@ export default createContainer(() => {
     const stateHandle = Meteor.subscribe('ledgerContractState');
     const tshirtHandle = Meteor.subscribe('tshirtContractState');
     const tshirtTicketHandle = Meteor.subscribe('tshirtRegisteredTickets');
+    const bitcoinBookHandle = Meteor.subscribe('bitcoinBookContractState');
+    const graphBookHandle = Meteor.subscribe('graphBookContractState');
+    const dappBookHandle = Meteor.subscribe('dappBookContractState');
+    const internetBookHandle = Meteor.subscribe('internetBookContractState');
+    const makersBookHandle = Meteor.subscribe('makersBookContractState');
+    const bitcoinBookTicketHandle = Meteor.subscribe('bitcoinBookRegisteredTickets');
+    const graphBookTicketHandle = Meteor.subscribe('graphBookRegisteredTickets');
+    const dappBookTicketHandle = Meteor.subscribe('dappBookRegisteredTickets');
+    const internetBookTicketHandle = Meteor.subscribe('internetBookRegisteredTickets');
+    const makersBookTicketHandle = Meteor.subscribe('makersBookRegisteredTickets');
 
     return {
         currentUser: Meteor.user(),
         ledgerRegisteredTickets: LedgerRegisteredTickets.find({}).fetch(),
         tshirtRegisteredTickets: TshirtRegisteredTickets.find({}).fetch(),
+        bitcoinBookRegisteredTickets: BitcoinBookRegisteredTickets.find({}).fetch(),
+        graphBookRegisteredTickets: GraphBookRegisteredTickets.find({}).fetch(),
+        dappBookRegisteredTickets: DappBookRegisteredTickets.find({}).fetch(),
+        internetBookRegisteredTickets: InternetBookRegisteredTickets.find({}).fetch(),
+        makersBookRegisteredTickets: MakersBookRegisteredTickets.find({}).fetch(),
 
         userLoaded:  Meteor.user() && handle.ready() && 
             stateHandle.ready() && ticketHandle.ready() && 
-            tshirtHandle.ready() && tshirtTicketHandle.ready(),
+            tshirtHandle.ready() && tshirtTicketHandle.ready() &&
+            bitcoinBookHandle.ready() && bitcoinBookTicketHandle.ready() &&
+            graphBookHandle.ready() && graphBookTicketHandle.ready() &&
+            dappBookHandle.ready() && dappBookTicketHandle.ready() &&
+            internetBookHandle.ready() && internetBookTicketHandle.ready() &&
+            makersBookHandle.ready() && makersBookTicketHandle.ready(),
         ledgerContractState: LedgerContractState.find({}).fetch(),
         tshirtContractState: TshirtContractState.find({}).fetch(),
+        bitcoinBookContractState: BitcoinBookContractState.find({}).fetch(),
+        graphBookContractState: GraphBookContractState.find({}).fetch(),
+        dappBookContractState: DappBookContractState.find({}).fetch(),
+        internetBookContractState: InternetBookContractState.find({}).fetch(),
+        makersBookContractState: MakersBookContractState.find({}).fetch(),
     };
 }, App);
 

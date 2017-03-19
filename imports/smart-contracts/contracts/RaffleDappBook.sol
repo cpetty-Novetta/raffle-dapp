@@ -1,6 +1,6 @@
 pragma solidity ^0.4.2;
 
-contract Raffle {
+contract RaffleDappBook {
     //////////////////////////////////////////////////////////
     //   Contract Contsruction
     //////////////////////////////////////////////////////////
@@ -8,7 +8,7 @@ contract Raffle {
     uint public numPrizes;
     event raffleInitiated(string _prizeName, uint _numprizes);
 
-    function Raffle(string _prizeName, uint _numPrizes) {
+    function RaffleDappBook(string _prizeName, uint _numPrizes) {
         prizeName = _prizeName;
         numPrizes = _numPrizes;
         raffleInitiated(prizeName, numPrizes);

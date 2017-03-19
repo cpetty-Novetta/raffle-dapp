@@ -2,11 +2,12 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Mongo } from 'meteor/mongo';
 
-export const LedgerRegisteredTickets = new Mongo.Collection('ledgerRegisteredTickets');
-export const LedgerContractState = new Mongo.Collection('ledgerContractState');
+export const MakersBookRegisteredTickets = new Mongo.Collection('makersBookRegisteredTickets');
+export const MakersBookContractState = new Mongo.Collection('makersBookContractState');
 
-// var RaffleWeb3 = web3.eth.contract(contract_abi);
-// RaffleWeb3Instance = RaffleWeb3.at(contract_address);
+// Constructor parameters
+const prizeName = 'makersBook';
+const numPrizes = 5;
 
 const stages = {
     0: 'Registration',
@@ -16,19 +17,20 @@ const stages = {
 
 if (Meteor.isServer) {
     // Publications to client
-     Meteor.publish('ledgerContractState', function ledgerContractStatePublication() {
-         return LedgerContractState.find({_id: "contractState"})
+     Meteor.publish('makersBookContractState', function makersBookContractStatePublication() {
+         return MakersBookContractState.find({_id: "contractState"})
      })
-     Meteor.publish('ledgerRegisteredTickets', function ledgerRegisteredTicketsPublication() {
-         return LedgerRegisteredTickets.find();
+     Meteor.publish('makersBookRegisteredTickets', function makersBookRegisteredTicketsPublication() {
+         return MakersBookRegisteredTickets.find();
      });
+     
 
     function adminUser(userId) {
         var adminUser = Meteor.users.findOne({username:"cpetty"});
         return (userId && adminUser && userId === adminUser._id);
     }
 
-    LedgerContractState.allow({
+    MakersBookContractState.allow({
         insert: function(userId, lugar){
             return adminUser(userId);
         },
@@ -40,49 +42,49 @@ if (Meteor.isServer) {
         }
     });
 
-    var ledgerEvents = LedgerWeb3Instance.allEvents({from: 0, toBlock: 'latest'});
-    ledgerEvents.watch( Meteor.bindEnvironment(function( err, result ) {
+    var makersBookEvents = MakersBookWeb3Instance.allEvents({from: 0, toBlock: 'latest'});
+    makersBookEvents.watch( Meteor.bindEnvironment(function( err, result ) {
     if (err) {
         console.log(err);
     }
-    // uncomment lower line to see all events as they happen
+    // uncomment to see raw events from watching
     // console.log(result)
-    // add the transaction to our RegisterEvents collection
         if(result['event'] == 'ticketRegistered') {
             const address = result.args._address.valueOf();
             const ticketId = result.args._ticketId.valueOf();
             const username = result.args._username.valueOf();
             const numTicketsTotal = result.args._numTicketsTotal.valueOf();
             const numUsersTotal = result.args._numUsersTotal.valueOf();
-            console.log("Adding Ledger ticket", ticketId, " to the database");
+            console.log("Adding MakersBook ticket", ticketId, " to the database");
             
-            LedgerRegisteredTickets.update(
+            MakersBookRegisteredTickets.update(
                 ticketId, 
                 { address: address,
-                  username: username },
+                username: username },
                 { upsert: true }
             )
-            LedgerContractState.update(
+            MakersBookContractState.update(
                 'contractState',
                 { $set: {
                     numTicketsTotal: numTicketsTotal,
                     numUsersTotal: numUsersTotal,
+                    address: makersBook_address,
                 }},
                 { upsert: true }
             )
         } else if (result['event'] == 'stageChanged') {
             const currentStage = stages[result.args._stage.valueOf()];
-            LedgerContractState.update(
+            MakersBookContractState.update(
                 "contractState",
                 { $set: { currentStage: currentStage }},
                 {upsert: true}
             )
-            console.log("Set ledger contract stage to ", currentStage);
+            console.log("Set MakersBook contract stage to ", currentStage);
             
         } else if (result['event'] == 'prizeWon') {
             const prizeWon = result.args._prize.valueOf();
             const ticketId = result.args._ticketId.valueOf();
-            LedgerRegisteredTickets.update(
+            MakersBookRegisteredTickets.update(
                 ticketId,
                 { $set: { prize: prizeWon, winner: true } }
             )
@@ -90,25 +92,24 @@ if (Meteor.isServer) {
         } else if (result['event'] == "raffleInitiated") {
             const prizeName = result.args._prizeName.valueOf();
             const numPrizes = result.args._numPrizes.valueOf();
-            LedgerContractState.update(
+            MakersBookContractState.update(
                 'constractState',
                 { $set: { 
                     prizeName: prizeName,
                     numPrizes: numPrizes,
                 }}
             )
-            console.log('recording ledger raffle initiation state')
+            console.log('recording makersBook raffle initiation state')
         }
-
-    }))
+    }));
 }
 
 Meteor.methods({
-    'updateLedgerStage'() {
-        LedgerWeb3Instance.getStage(Meteor.bindEnvironment(function(err, stage) {
-            LedgerContractState.update('contractState',
+   'updateMakersBookStage'() {
+       MakersBookWeb3Instance.getStage(Meteor.bindEnvironment(function(err, stage) {
+            MakersBookContractState.update('contractState',
                 { $set: { currentStage: stages[stage.valueOf()]} }
             )
         }))
-    }
+   }
 })
