@@ -1,4 +1,14 @@
 /* CSS declarations go here */
+body {
+  background-color: lightblue;
+}
+
+.collapsible-body {
+  background-color: white;
+}
+.collapsible-header {
+  padding-top: .5em;
+}
 #nav-button {
   text-decoration: none;
   margin-right: 10px;
@@ -18,21 +28,9 @@
   text-align: center;
   color: white;
   left: 0;
+  top: 6%;
   width: 100%;
-  /*top: 50%;*/
 }
-
-.fill {
-    display: block;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-/*.fill img {
-    flex-shrink: 0;
-    min-width: 100%;
-    min-height: 100%
-}*/
 
 #hero {
   background-image: url('/img/techtalks-marketo-promo.png');
@@ -59,7 +57,6 @@
 }
 
 .card-image-div {
-  /*width: 15%;*/
   margin: 1em;
 }
 
@@ -70,4 +67,16 @@
 .allocation-box {
   height: 500px;
   overflow: auto;
+}
+
+.spacer {
+  margin-top: 1em;
+}
+
+.spacer h1 {
+  padding-top: 1em;
+}
+
+.spacer p {
+  padding-top: 1em
 }

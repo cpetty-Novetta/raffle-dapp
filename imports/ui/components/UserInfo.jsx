@@ -54,7 +54,7 @@ export default class UserInfo extends Component {
     }
 
     updateElligibleTickets() {
-        let numTickets = 3;
+        let numTickets = 10;
         if (this.props.currentUser.company) {
             numTickets++;
         }

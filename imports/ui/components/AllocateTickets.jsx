@@ -104,39 +104,45 @@ export default class RegisterForTickets extends Component {
 
         var contractState = {
             registerLedgerTicketsToUser: {
+                raffle: "Ledger Nano",
                 name: "registerTicketsToUser",
                 dataTypes: ["string", "address", "uint"],
                 inputs: [username, userAddress, this.state.ledgerTickets],
             },
             registerTshirtTicketsToUser: {
+                raffle: "Novetta T-shirt",
                 name: "registerTicketsToUser",
                 dataTypes: ["string", "address", "uint"],
                 inputs: [username, userAddress, this.state.tshirtTickets],
             },
             registerBitcoinBookTicketsToUser: {
+                raffle: "Mastering Bitcoin",
                 name: "registerTicketsToUser",
                 dataTypes: ["string", "address", "uint"],
                 inputs: [username, userAddress, this.state.bitcoinBookTickets],
             },
             registerGraphBookTicketsToUser: {
+                raffle: "Graph Databases",
                 name: "registerTicketsToUser",
                 dataTypes: ["string", "address", "uint"],
                 inputs: [username, userAddress, this.state.graphBookTickets],
             },registerDappBookTicketsToUser: {
+                raffle: "Decentralized Applications",
                 name: "registerTicketsToUser",
                 dataTypes: ["string", "address", "uint"],
                 inputs: [username, userAddress, this.state.dappBookTickets],
             },registerInternetBookTicketsToUser: {
+                raffle: "Risky Internet Book",
                 name: "registerTicketsToUser",
                 dataTypes: ["string", "address", "uint"],
                 inputs: [username, userAddress, this.state.internetBookTickets],
             },registerMakersBookTicketsToUser: {
+                raffle: "Maker's notebook",
                 name: "registerTicketsToUser",
                 dataTypes: ["string", "address", "uint"],
                 inputs: [username, userAddress, this.state.makersBookTickets],
             },
         }
-
         this.sendTx(contractState.registerLedgerTicketsToUser, ledger_address, nonce);
         this.sendTx(contractState.registerTshirtTicketsToUser, tshirt_address, nonce + 1);
         this.sendTx(contractState.registerBitcoinBookTicketsToUser, bitcoinBook_address, nonce + 2);
@@ -154,7 +160,6 @@ export default class RegisterForTickets extends Component {
     sendTx(contractStateObject, contractAddress, txNonce) {
         var privateKey = new Buffer(this.props.currentUser.privKey, 'hex');
         var address = this.props.currentUser.account;
-        console.log(txNonce);
         function signedTxAssembler(methodObj, contractAddress, txNonce) {
             var methodID = EthereumAbi.methodID(methodObj.name, methodObj.dataTypes).toString('hex');
             var functionArgs = EthereumAbi.rawEncode(methodObj.dataTypes, methodObj.inputs).toString('hex');
@@ -173,7 +178,7 @@ export default class RegisterForTickets extends Component {
             return '0x' + serializedTx;
         }
 
-        web3.eth.sendRawTransaction(signedTxAssembler(contractStateObject, contractAddress, txNonce), {gas: 5000000000}, function(err,txHash) {
+        web3.eth.sendRawTransaction(signedTxAssembler(contractStateObject, contractAddress, txNonce), {gas: 10000000000}, function(err,txHash) {
             if (err) throw err;
             if (!err) {
                 Meteor.call('user.isMining', Meteor.userId(), true);
@@ -181,6 +186,10 @@ export default class RegisterForTickets extends Component {
                 .then(function(receipt) {
                     Meteor.call('user.isMining', Meteor.userId(), false)
                     console.log("Tx receipt: ",receipt);
+                    if (contractStateObject.inputs[2] !== 0) {
+                        Materialize.toast(contractStateObject.raffle + " tickets are locked in!", 4000)
+                    }
+                    
                 });
             }
         });
@@ -298,7 +307,7 @@ export default class RegisterForTickets extends Component {
                         <div className="card">
                             <div className="row valign-wrapper">
                             <div className="card-image-div col s4 center">
-                                <img className="responsive-img valign" src="/img/graphBook.jpg"/>
+                                <img className="responsive-img valign" src="/img/makersNotebook.jpg"/>
                             </div>
                             <div className="card-content-div col s6 center valign">
                                 <p className="flow-text">Makers Notebook</p>

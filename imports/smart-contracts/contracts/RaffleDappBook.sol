@@ -83,10 +83,12 @@ contract RaffleDappBook {
     }
 
     function registerTicketsToUser (string username, address userAddress, uint numTickets) atStage(Stages.Registration) {
-        numUsersTotal += 1;
-        for (uint i = 0; i < numTickets; i++ ) {
-            uint ticketId = generateNewTicket(userAddress);
-            ticketRegistered(username, userAddress, tickets[ticketId].ticketId, numTicketsTotal, numUsersTotal);
+        if (numTickets != 0) {
+            numUsersTotal += 1;
+            for (uint i = 0; i < numTickets; i++ ) {
+                uint ticketId = generateNewTicket(userAddress);
+                ticketRegistered(username, userAddress, tickets[ticketId].ticketId, numTicketsTotal, numUsersTotal);
+            }
         }
     }
     

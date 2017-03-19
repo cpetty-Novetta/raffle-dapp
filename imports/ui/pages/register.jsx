@@ -15,7 +15,7 @@ class Register extends React.Component {
     }
 
     countTicketsToRegister(company, reason, phone) {
-        let numTickets = 3;
+        let numTickets = 10;
         if (company) {
             numTickets++;
         }
@@ -91,8 +91,19 @@ class Register extends React.Component {
 
   render() {
     return (
-        <div className="section">
-            <h4 className="text-center">Register</h4>
+        <div className="container white z-depth-2">
+            <div className="row center spacer">
+                <h1 className="">Register</h1>
+                <div className="col offset-s3 s6">
+                <div className="card blue lighten-1 center">
+                    <div className="card-content white-text">
+                    
+                    <p className="flow-text">Welcome to the Jailbreak Raffle Decentralized Application (dApp)!</p>
+                    <p className="flow-text spacer">Please register for tickets to enter into the Raffle, the more information you provide, the more tickets you recieve.</p>
+                    </div>
+                </div>
+                </div>
+            </div>
               <div className="row">
                 <form className="col offset-s1 s10" onSubmit={this.handleSubmit.bind(this)}>
                 <div className="row">
@@ -153,7 +164,7 @@ class Register extends React.Component {
                     </div>
                 </div>
                 <div className="row center">
-                    <button className="waves-effect waves-light btn btc-block">Register</button>
+                    <button className="waves-effect waves-light btn btc-block blue lighten-1">Register</button>
                 </div>
                 </form>
             </div>

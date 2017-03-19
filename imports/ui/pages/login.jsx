@@ -24,8 +24,11 @@ class Login extends React.Component {
     render () {
         const { from } = this.props.location.state || { from: { pathname: '/' } }
         return (
-        <div className="section">
-            <h4 className="text-center">Login</h4>
+        <div className="container white z-depth-2">
+            <div className="row center spacer">
+                <h1 className="">Login</h1>
+                <p className="flow-text">Welcome back!</p>
+            </div>
               <div className="row">
                 <form className="col offset-s1 s10" onSubmit={this.handleSubmit.bind(this)}>
                     <div className="row">
@@ -40,8 +43,8 @@ class Login extends React.Component {
                         <label htmlFor="password">Password</label>
                         </div>
                     </div>
-                    <div className="row">
-                        <button className="waves-effect waves-light btn btn-block">Login</button>
+                    <div className="row center">
+                        <button className="waves-effect waves-light btn btn-block blue lighten-1">Login</button>
                     </div>
                 </form>
             </div>
