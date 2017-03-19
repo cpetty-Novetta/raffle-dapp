@@ -40,8 +40,10 @@ web3.eth.getTransactionReceiptMined = function (txnHash, interval) {
     }
 };
 
+
 ledger_json = require("/imports/smart-contracts/build/contracts/RaffleLedger.json");
 ledger_abi = ledger_json["abi"];
+ledger_binary = ledger_json["unlinked_binary"];
 ledger_address = ledger_json["networks"]["1900"].address;
 let LedgerWeb3 = web3.eth.contract(ledger_abi);
 LedgerWeb3Instance = LedgerWeb3.at(ledger_address);

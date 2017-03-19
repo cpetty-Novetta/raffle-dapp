@@ -51,12 +51,12 @@ class App extends Component {
     }
 
     render() {
+        // {this.props.currentUser.isMining ?
+        //                 <MiningTransaction /> : null
+        //             }
         if (this.props.userLoaded) {
             return (
                 <div className='container'>
-                    {this.props.currentUser.isMining ?
-                        <MiningTransaction /> : null
-                    }
                     <div className="section">
                         <ul className="collapsible popout" data-collapsible="accordion">
                             <li>
@@ -77,7 +77,10 @@ class App extends Component {
                                     <h4 className="center">Ticket Allocation</h4>
                                 </div>
                                 <div className="collapsible-body">
-                                    {this.props.currentUser.isRegistered ? null :
+                                    {this.props.currentUser.isRegistered ? 
+                                        <div className="row center">
+                                            <p className="flow-text">You've allocated your tickets, now grab a drink, enjoy the talks, and wait to win!</p>
+                                        </div> :
                                         <AllocateTickets 
                                             numTicketsToRegister={this.props.raffleTicketsToRegister}
                                             currentUser={this.props.currentUser}
@@ -95,25 +98,30 @@ class App extends Component {
                                     />
                                 </div>
                             </li>
-                            <li>
-                                <div className="collapsible-header">
-                                    <h4 className="center">Winning Tickets!</h4>
-                                </div>
-                                <div className="collapsible-body">
-                                    {this.props.ledgerContractState[0].currentStage == "Disbursed" ? 
-                                        this.props.ledgerRegisteredTickets.map(ticket => (
-                                            <PrizeWon {...ticket} key={ticket._id} currentUser={this.props.currentUser} />
-                                        )) :
-                                        null
-                                    }
-                                    <TshirtPrizeContainer {...this.props} />
-                                </div>
-                            </li>
+                            {this.props.ledgerContractState[0].currentStage === "Disbursed" ?
+                                <li>
+                                    <div className="collapsible-header">
+                                        <h4 className="center">Winning Tickets!</h4>
+                                    </div>
+                                    <div className="collapsible-body">
+                                        {this.props.ledgerContractState[0].currentStage == "Disbursed" ? 
+                                            this.props.ledgerRegisteredTickets.map(ticket => (
+                                                <PrizeWon {...ticket} key={ticket._id} currentUser={this.props.currentUser} />
+                                            )) :
+                                            null
+                                        }
+                                        <TshirtPrizeContainer {...this.props} />
+                                    </div>
+                                </li> : null
+                            }
                         </ul>
                     </div>
-                    <div className="divider" />
                     {this.props.currentUser.username === 'cpetty' ?
-                        <DistributePrizes currentUser={this.props.currentUser} ledgerContractState={this.props.ledgerContractState} /> :
+                        <div>
+                            <div className="divider" />
+                            <DistributePrizes currentUser={this.props.currentUser} ledgerContractState={this.props.ledgerContractState} />
+                            
+                        </div> :
                         null
                     }
                 </div>

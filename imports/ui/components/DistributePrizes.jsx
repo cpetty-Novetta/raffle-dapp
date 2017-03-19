@@ -108,49 +108,49 @@ export default class DistributePrizes extends Component {
     distributePrizes() {
         LedgerInstance.deployed().then(function(instance) {
             Meteor.call('user.isMining', Meteor.userId(), true);
-            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 710000})
+            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
         }).then(function(result) {
             // Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Ledger distributePrizes Result: ", result)
         })
         TshirtInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
-            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 710000})
+            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
         }).then(function(result) {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Tshirt distributePrizes Result: ", result)
         })
         BitcoinBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
-            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 710000})
+            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
         }).then(function(result) {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Bitcoin distributePrizes Result: ", result)
         })
         GraphBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
-            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 710000})
+            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
         }).then(function(result) {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Graph distributePrizes Result: ", result)
         })
         DappBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
-            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 710000})
+            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
         }).then(function(result) {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Dapp distributePrizes Result: ", result)
         })
         InternetBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
-            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 710000})
+            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
         }).then(function(result) {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Internet distributePrizes Result: ", result)
         })
         MakersBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
-            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 710000})
+            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
         }).then(function(result) {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Makers distributePrizes Result: ", result)

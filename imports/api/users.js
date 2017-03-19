@@ -142,7 +142,7 @@ Meteor.methods({
         check(numTickets, Number);
 
         Meteor.users.update(userId, { $set: { numTicketsRegistered: numTickets } })
-        console.log(numTickets, " total registered to smart contracts by user ", userId);
+        console.log(numTickets, " total registered tickets to smart contracts by user ", userId);
     },
     'user.increaseNonce'(userId, nonce) {
         Meteor.users.update(userId, { $set: { nonce: nonce + 1 } },

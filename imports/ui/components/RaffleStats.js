@@ -26,11 +26,9 @@ export default class RaffleStats extends Component {
             if(ticket.address == this.props.currentUser.account) return ticket;
         })
         return (
-            <div className="section">
+            <div className="">
                 <div className="row" >
-                    <h4 className="center">Raffle Current Stage: <span className="blue-text lighten-1">{this.props.ledgerContractState[0].currentStage}</span></h4>
-                    {/*<div className="divider" />
-                    <h4 className="center">Raffle Prize Statistics:</h4>*/}
+                    <h3 className="center">Raffle Current Stage: <span className="blue-text lighten-1">{this.props.ledgerContractState[0].currentStage}</span></h3>
                     <table>
                         <thead>
                             <tr>

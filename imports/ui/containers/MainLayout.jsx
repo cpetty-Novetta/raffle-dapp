@@ -20,7 +20,7 @@ class MainLayout extends React.Component {
   render() {
     if (! this.props.userLoaded) {
       return (
-        <p>There is a problem</p>
+        <p>Loading... Please wait</p>
       )
     } else {
       let props = this.props;
