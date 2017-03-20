@@ -70,8 +70,8 @@
     "1900": {
       "events": {},
       "links": {},
-      "address": "0xf6f37f42ca12bdf0bb5e738c9e1d51b729ba80d5",
-      "updated_at": 1489959671005
+      "address": "0xdc1036f9a639220a0bd20a7c1d38262511f8d822",
+      "updated_at": 1490022894748
     },
     "1486052774363": {
       "events": {},
@@ -183,5 +183,5 @@
     }
   },
   "schema_version": "0.0.5",
-  "updated_at": 1489959671005
+  "updated_at": 1490022894748
 }

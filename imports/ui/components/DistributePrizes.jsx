@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Meteor } from 'meteor/meteor';
 
 let provider = new Web3.providers.HttpProvider("http://localhost:8545");
+// let provider = new Web3.providers.HttpProvider("http://52.168.76.154:8545");
 let contract = require("truffle-contract");
 
 let LedgerInstance = contract(ledger_json);
@@ -20,19 +21,6 @@ GraphBookInstance.setProvider(provider);
 let MakersBookInstance = contract(makersBook_json);
 MakersBookInstance.setProvider(provider);
 
-const contractState = {
-            closeLedgerRegistration: {
-                name: "closeRegistration",
-                dataTypes: [],
-                inputs: [],
-            },
-            distributeLedgerPrizes: {
-                name: "distributePrizes",
-                dataTypes: [],
-                inputs: [],
-            },
-        }
-
 export default class DistributePrizes extends Component {
     constructor(props) {
         super(props);
@@ -47,9 +35,6 @@ export default class DistributePrizes extends Component {
             1: 'Distribution',
             2: 'Disbursed',
         }
-    }
-
-    serverTruffleInstance() {
     }
 
     closeRegistration() {
@@ -105,7 +90,7 @@ export default class DistributePrizes extends Component {
         })
     }
 
-    distributePrizes() {
+    distributeLedgerPrizes() {
         LedgerInstance.deployed().then(function(instance) {
             Meteor.call('user.isMining', Meteor.userId(), true);
             return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
@@ -113,6 +98,8 @@ export default class DistributePrizes extends Component {
             // Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Ledger distributePrizes Result: ", result)
         })
+    }
+    distributeTshirtPrizes() {
         TshirtInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
             return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
@@ -120,6 +107,8 @@ export default class DistributePrizes extends Component {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Tshirt distributePrizes Result: ", result)
         })
+    }
+    distributeBitcoinBookPrizes() {
         BitcoinBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
             return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
@@ -127,6 +116,8 @@ export default class DistributePrizes extends Component {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Bitcoin distributePrizes Result: ", result)
         })
+    }
+    distributeGraphBookPrizes() {
         GraphBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
             return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
@@ -134,6 +125,8 @@ export default class DistributePrizes extends Component {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Graph distributePrizes Result: ", result)
         })
+    }
+    distributeDappBookPrizes() {
         DappBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
             return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
@@ -141,6 +134,8 @@ export default class DistributePrizes extends Component {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Dapp distributePrizes Result: ", result)
         })
+    }
+    distributeInternetBookPrizes() {
         InternetBookInstance.deployed().then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
             return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
@@ -148,55 +143,16 @@ export default class DistributePrizes extends Component {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Internet distributePrizes Result: ", result)
         })
-        MakersBookInstance.deployed().then(function(instance) {
+    }
+    distributeMakersBookPrizes() {
+        MakersBookInstance.deployed(
+        ).then(function(instance) {
             // Meteor.call('user.isMining', Meteor.userId(), true);
             return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
         }).then(function(result) {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Makers distributePrizes Result: ", result)
         })
-    }
-
-    sendTx(contractStateObject, contractAddress, txNonce) {
-        
-        var privateKey = new Buffer(this.props.currentUser.privKey, 'hex');
-        function signedTxAssembler(methodObj, contractAddress, txNonce) {
-            var methodID = EthereumAbi.methodID(methodObj.name, methodObj.dataTypes).toString('hex');
-            var functionArgs = EthereumAbi.rawEncode(methodObj.dataTypes, methodObj.inputs).toString('hex');
-            var unsignedData = '0x' + methodID + functionArgs;
-            var rawTx = {
-                to: contractAddress,
-                value: '0x00',
-                data: unsignedData,
-                gasPrice: 20000000000,
-                gasLimit: 4712388,
-                nonce: txNonce,
-            }
-            var tx = new EthereumTx(rawTx);
-            tx.sign(privateKey);
-            var serializedTx = tx.serialize().toString('hex');
-            return '0x' + serializedTx;
-        }
-
-        web3.eth.sendRawTransaction(signedTxAssembler(contractStateObject, contractAddress, txNonce), (err,txHash) => {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log("txHash: ", txHash);
-                web3.eth.getTransaction(txHash, (err, tx) => {
-                    console.log("getTx Result: ", tx);
-                })
-                web3.eth.getTransactionReceipt(txHash, (err, receipt) => {
-                        console.log("tx receipt: ", receipt);
-                })
-            }
-        });
-
-    }
-
-    componentWillMount() {
-        // this.serverWeb3Instance();
-        this.serverTruffleInstance();
     }
  
     render() {
@@ -212,12 +168,60 @@ export default class DistributePrizes extends Component {
                         <button className="waves-effect waves-light btn disabled" onClick={this.closeRegistration.bind(this)}>Close Registration</button>
                     </div>
                 }
-                {this.props.ledgerContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
+                {this.props.tshirtContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
                     <div className="row center" >
-                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributePrizes.bind(this)}>Distribute Prizes</button>
+                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributeTshirtPrizes.bind(this)}>Distribute Tshirt Prizes</button>
                     </div> : 
                     <div className="row center" >
-                        <button className="waves-effect waves-light btn disabled" onClick={this.distributePrizes.bind(this)}>Distribute Prizes</button>
+                        <button className="waves-effect waves-light btn disabled" >Distribute Tshirt Prizes</button>
+                    </div>
+                }
+                {this.props.bitcoinBookContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributeBitcoinBookPrizes.bind(this)}>Distribute Bitcoin book Prizes</button>
+                    </div> : 
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn disabled" >Distribute Bitcoin book Prizes</button>
+                    </div>
+                }
+                {this.props.graphBookContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributeGraphBookPrizes.bind(this)}>Distribute Graph book Prizes</button>
+                    </div> : 
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn disabled" >Distribute Graph book Prizes</button>
+                    </div>
+                }
+                {this.props.dappBookContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributeDappBookPrizes.bind(this)}>Distribute Dapp book Prizes</button>
+                    </div> : 
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn disabled" >Distribute Dapp book Prizes</button>
+                    </div>
+                }
+                {this.props.internetBookContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributeInternetBookPrizes.bind(this)}>Distribute Internet book Prizes</button>
+                    </div> : 
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn disabled" >Distribute Internet book Prizes</button>
+                    </div>
+                }
+                {this.props.makersBookContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributeMakersBookPrizes.bind(this)}>Distribute Makers book Prizes</button>
+                    </div> : 
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn disabled" >Distribute Makers book Prizes</button>
+                    </div>
+                }
+                {this.props.ledgerContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributeLedgerPrizes.bind(this)}>Distribute Ledger Prizes</button>
+                    </div> : 
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn disabled" >Distribute Ledger Prizes</button>
                     </div>
                 }
             </div>

@@ -54,7 +54,7 @@ export default class UserInfo extends Component {
     }
 
     updateElligibleTickets() {
-        let numTickets = 10;
+        let numTickets = 3;
         if (this.props.currentUser.company) {
             numTickets++;
         }
@@ -125,8 +125,8 @@ export default class UserInfo extends Component {
             <div>
                     <div>
                     {this.props.currentUser.isRegistered ? 
-                        <p className="flow-text">Tickets Locked with Smart Contract</p> : 
-                        <p className="flow-text">Elligible Tickets: {this.props.currentUser.numEarnedTickets}</p>
+                        <p className="flow-text blue-text lighten-1 center">Tickets Locked in smart contracts</p> : 
+                        <p className="flow-text center blue-text lighten-1">Elligible Tickets: {this.props.currentUser.numEarnedTickets}</p>
                     }
                     {this.props.currentUser.account && this.props.currentUser.isFunded ?  
                         <p className="flow-text truncate">Ethereum Address: {this.props.currentUser.account}</p> :
@@ -175,29 +175,38 @@ export default class UserInfo extends Component {
                     {! this.props.currentUser.reason ?
                     <div className="row">
                         <div className="input-field col s12">
-                            <select id="reason" value=''>
-                                <option value='' disabled>How did you hear about this?</option>
-                                <option value="Cyberwire Podcast">Cyberwire</option>
-                                <option value="The Bitcoin Podcast">The Bitcoin Podcast</option>
-                                <option value="Novetta">Novetta</option>
-                                <option value="Stumbled in">Stumbled into here</option>
-                            </select>
-                            <label htmlFor="reason" />
-                        </div>
+                        <select className="browser-default" id="reason">
+                            <option value='' disabled selected="selected">How did you hear about this?</option>
+                            <option value="Cyberwire Podcast">Cyberwire</option>
+                            <option value="The Bitcoin Podcast">The Bitcoin Podcast</option>
+                            <option value="Novetta">Novetta</option>
+                            <option value="Jailbreak Brewing Company">Jailbreak Brewing Company</option>
+                            <option value="Stumbled in">Stumbled into here</option>
+                        </select>
+                        <label htmlFor="reason" />
+                    </div>
                     </div>: null
                     }
-                    {this.props.ledgerContractState[0].currentStage === "Registration" && !this.props.currentUser.earnedAllTickets  ?
+                    {this.props.currentUser.isRegistered ? 
                         <div className="row center">
-                            <button className="waves-effect waves-light btn">Register for more tickets now!</button>
+                            <p className="flow-text center">You've already allocated your tickets.</p>
+                            <p className="flow-text center">Tap on "Raffle Prize Allocation" to see what everyone is registering for.</p>
                         </div> :
-                        <div className="row center">
-                            <div className="row">
-                                <button className="waves-effect waves-light btn disabled">You've got max tickets!</button>
-                            </div>
-                            <div className="row">
-                                <span className="flow-text">Click on "Ticket Allocation" to register for prizes</span>
-                            </div>
-                        </div> 
+                        <div>
+                            {this.props.ledgerContractState[0].currentStage === "Registration" && !this.props.currentUser.earnedAllTickets  ?
+                                <div className="row center">
+                                    <button className="waves-effect waves-light btn">Register for more tickets now!</button>
+                                </div> :
+                                <div className="row center">
+                                    <div className="row">
+                                        <button className="waves-effect waves-light btn disabled">You've got max tickets!</button>
+                                    </div>
+                                    <div className="row">
+                                        <span className="flow-text">Tap on "Ticket Allocation" to register for prizes</span>
+                                    </div>
+                                </div> 
+                            }
+                        </div>
                     }
                     </form>
                 </div>

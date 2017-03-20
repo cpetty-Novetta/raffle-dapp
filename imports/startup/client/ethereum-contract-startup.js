@@ -3,8 +3,9 @@ EthereumAbi = require('ethereumjs-abi');
 walletjs = require("ethereumjs-wallet");
 EthereumTx = require("ethereumjs-tx");
 
-// web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-web3 = new Web3(new Web3.providers.HttpProvider('http://192.168.1.175:8545'));
+web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
+// web3 = new Web3(new Web3.providers.HttpProvider('http://192.168.1.175:8545'));
+// web3 = new Web3(new Web3.providers.HttpProvider('http://52.168.76.154:8545'));
 
 // Taken from gist from xavierlepretre
 // found here: https://gist.github.com/xavierlepretre/88682e871f4ad07be4534ae560692ee6
