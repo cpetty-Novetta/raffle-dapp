@@ -123,6 +123,9 @@ contract RaffleGraphBook {
     
     // Meat of the contract here
     function distributePrizes() public atStage(Stages.Disbursement) {
+        if (numPrizes > numUsersTotal) {
+            numPrizes = numUsersTotal;
+        }
         for (uint i = 0; i < numPrizes; i++) {
             uint winner = randomChoiceFromticketPool();
             address winningAddress = tickets[winner].addr;

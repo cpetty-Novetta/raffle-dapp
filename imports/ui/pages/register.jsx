@@ -15,7 +15,7 @@ class Register extends React.Component {
     }
 
     countTicketsToRegister(company, reason, phone) {
-        let numTickets = 10;
+        let numTickets = 3;
         if (company) {
             numTickets++;
         }
@@ -94,7 +94,7 @@ class Register extends React.Component {
         <div className="container white z-depth-2">
             <div className="row center spacer">
                 <h1 className="">Register</h1>
-                <div className="col offset-s3 s6">
+                <div className="col s12">
                 <div className="card blue lighten-1 center">
                     <div className="card-content white-text">
                     

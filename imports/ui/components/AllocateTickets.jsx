@@ -96,6 +96,17 @@ export default class RegisterForTickets extends Component {
         }
     }
 
+    warnUser() {
+        <div id="modal1" className="modal">
+            <div className="modal-content">
+            <h4>Are you sure?</h4>
+            <p>This is a one-time process.  After locking your tickets with the Ethereum smart contacts, you cannot change or add tickets.  Are you sure you would like to continue and lock your tickets in?</p>
+            </div>
+            <div className="modal-footer">
+            <a href="#!" className=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+            </div>
+        </div>
+    }
 
     registerUser () {
         let userAddress = this.props.currentUser.account;
@@ -178,7 +189,7 @@ export default class RegisterForTickets extends Component {
             return '0x' + serializedTx;
         }
 
-        web3.eth.sendRawTransaction(signedTxAssembler(contractStateObject, contractAddress, txNonce), {gas: 10000000000}, function(err,txHash) {
+        web3.eth.sendRawTransaction(signedTxAssembler(contractStateObject, contractAddress, txNonce), {gas: 1000000}, function(err,txHash) {
             if (err) throw err;
             if (!err) {
                 Meteor.call('user.isMining', Meteor.userId(), true);
@@ -193,6 +204,10 @@ export default class RegisterForTickets extends Component {
                 });
             }
         });
+    }
+
+    componentDidMount() {
+        $('.modal').modal();
     }
 
     render() {
@@ -323,12 +338,23 @@ export default class RegisterForTickets extends Component {
                     </div>
                     {this.props.currentUser.isFunded && !this.props.currentUser.isMining && this.state.numTicketsAllocated === this.props.currentUser.numEarnedTickets ? 
                         <div className="row center">
-                            <button className="waves-effect waves-light btn blue lighten-1" onClick={this.registerUser.bind(this)}>Lock {this.state.numTicketsAllocated} tickets into smart contracts</button>
+                            <button data-target="modal1"  className="waves-effect waves-light btn blue lighten-1" onClick={$('#model1').modal('open')}>Lock {this.state.numTicketsAllocated} tickets into smart contracts</button>
                         </div> :
                         <div className="row center">
                             <button className="waves-effect waves-light btn disabled" onClick={this.registerUser.bind(this)}>Please allocate all of your tickets to prizes</button>
                         </div>
                     }
+                    <div id="modal1" className="modal">
+                        <div className="modal-content">
+                        <h4>Are you sure?</h4>
+                        <p className="flow-text">This is a one-time process.  After locking your tickets with the Ethereum smart contracts, you cannot change or add tickets.  </p>
+                        <p className="flow-text spacer">Are you sure you would like to continue and lock your tickets in?</p>
+                        </div>
+                        <div className="modal-footer">
+                        <a onClick={this.registerUser.bind(this)} className=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+                        <a onClick={$('#modal1').modal('close')} className=" modal-action modal-close waves-effect waves-red btn-flat">Nope</a>
+                        </div>
+                    </div>
                 </div>
                 
         )

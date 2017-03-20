@@ -19,6 +19,12 @@ import RegisterForTickets from '/imports/ui/components/RegisterForTickets';
 import DistributePrizes from '/imports/ui/components/DistributePrizes';
 import PrizeWon from '/imports/ui/components/PrizeWon';
 import TshirtPrizeContainer from '/imports/ui/containers/TshirtPrizeContainer';
+import DappBookPrizeContainer from '/imports/ui/containers/DappBookPrizeContainer';
+import BitcoinBookPrizeContainer from'/imports/ui/containers/BitcoinBookPrizeContainer';
+import GraphBookPrizeContainer from '/imports/ui/containers/GraphBookPrizeContainer';
+import InternetBookPrizeContainer from '/imports/ui/containers/InternetBookPrizeContainer';
+import MakersBookPrizeContainer from '/imports/ui/containers/MakersBookPrizeContainer';
+import LedgerPrizeContainer from '/imports/ui/containers/LedgerPrizeContainer';
 import UserInfo from '/imports/ui/components/UserInfo';
 import NotLoggedIn from '/imports/ui/pages/notLoggedIn';
 
@@ -48,6 +54,7 @@ class App extends Component {
             onOpen: function(el) { alert('Open'); }, // Callback for Collapsible open
             onClose: function(el) { alert('Closed'); } // Callback for Collapsible close
         });
+        $('.modal').modal();
     }
 
     render() {
@@ -60,9 +67,14 @@ class App extends Component {
                     <div className="section">
                         <ul className="collapsible popout" data-collapsible="accordion">
                             <li>
+                                {this.props.ledgerContractState[0].currentStage === "Registration" ?
                                 <div className="active collapsible-header">
                                     <h4 className="center">Your Registered Information</h4>
+                                </div> :
+                                <div className="collapsible-header">
+                                    <h4 className="center">Your Registered Information</h4>
                                 </div>
+                                }
                                 <div className="collapsible-body">
                                     <UserInfo 
                                         currentUser={this.props.currentUser} 
@@ -98,29 +110,27 @@ class App extends Component {
                                     />
                                 </div>
                             </li>
-                            {this.props.ledgerContractState[0].currentStage === "Disbursed" ?
-                                <li>
-                                    <div className="collapsible-header">
-                                        <h4 className="center">Winning Tickets!</h4>
-                                    </div>
-                                    <div className="collapsible-body">
-                                        {this.props.ledgerContractState[0].currentStage == "Disbursed" ? 
-                                            this.props.ledgerRegisteredTickets.map(ticket => (
-                                                <PrizeWon {...ticket} key={ticket._id} currentUser={this.props.currentUser} />
-                                            )) :
-                                            null
-                                        }
-                                        <TshirtPrizeContainer {...this.props} />
-                                    </div>
-                                </li> : null
-                            }
+                            <li>
+                                <div className="collapsible-header">
+                                    <h4 className="center">Winning Tickets!</h4>
+                                </div>
+                                <div className="collapsible-body center">
+                                    <p className="flow-text">If you've won, please pick up your prizes at the prize desk'</p>
+                                    <LedgerPrizeContainer {...this.props} />
+                                    <TshirtPrizeContainer {...this.props} />
+                                    <DappBookPrizeContainer {...this.props} />
+                                    <BitcoinBookPrizeContainer {...this.props} />
+                                    <GraphBookPrizeContainer {...this.props} />
+                                    <InternetBookPrizeContainer {...this.props} />
+                                    <MakersBookPrizeContainer {...this.props} />
+                                </div>
+                            </li>
                         </ul>
                     </div>
                     {this.props.currentUser.username === 'cpetty' ?
                         <div>
                             <div className="divider" />
-                            <DistributePrizes currentUser={this.props.currentUser} ledgerContractState={this.props.ledgerContractState} />
-                            
+                            <DistributePrizes {...this.props} />
                         </div> :
                         null
                     }

@@ -54,7 +54,7 @@ export default class UserInfo extends Component {
     }
 
     updateElligibleTickets() {
-        let numTickets = 10;
+        let numTickets = 3;
         if (this.props.currentUser.company) {
             numTickets++;
         }
@@ -126,7 +126,7 @@ export default class UserInfo extends Component {
                     <div>
                     {this.props.currentUser.isRegistered ? 
                         <p className="flow-text">Tickets Locked with Smart Contract</p> : 
-                        <p className="flow-text">Elligible Tickets: {this.props.currentUser.numEarnedTickets}</p>
+                        <p className="flow-text center blue-text lighten-1">Elligible Tickets: {this.props.currentUser.numEarnedTickets}</p>
                     }
                     {this.props.currentUser.account && this.props.currentUser.isFunded ?  
                         <p className="flow-text truncate">Ethereum Address: {this.props.currentUser.account}</p> :
@@ -195,7 +195,7 @@ export default class UserInfo extends Component {
                                 <button className="waves-effect waves-light btn disabled">You've got max tickets!</button>
                             </div>
                             <div className="row">
-                                <span className="flow-text">Click on "Ticket Allocation" to register for prizes</span>
+                                <span className="flow-text">Tap on "Ticket Allocation" to register for prizes</span>
                             </div>
                         </div> 
                     }

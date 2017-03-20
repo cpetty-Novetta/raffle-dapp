@@ -1,6 +1,4 @@
-var StandardToken = artifacts.require("./StandardToken.sol");
-var HumanStandardToken = artifacts.require("./HumanStandardToken.sol");
-var Jailbreak = artifacts.require("./JailbreakRaffle.sol");
+
 let RaffleLedger = artifacts.require('./RaffleLedger.sol');
 let RaffleTshirt = artifacts.require('./RaffleTshirt.sol');
 let RaffleGraphBook = artifacts.require('./RaffleGraphBook.sol');
