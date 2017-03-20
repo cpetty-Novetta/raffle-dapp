@@ -145,6 +145,7 @@ class Register extends React.Component {
                             <option value="Cyberwire Podcast">Cyberwire</option>
                             <option value="The Bitcoin Podcast">The Bitcoin Podcast</option>
                             <option value="Novetta">Novetta</option>
+                            <option value="Jailbreak Brewing Company">Jailbreak Brewing Company</option>
                             <option value="Stumbled in">Stumbled into here</option>
                         </select>
                         <label htmlFor="reason" />

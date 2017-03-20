@@ -115,7 +115,7 @@ class App extends Component {
                                     <h4 className="center">Winning Tickets!</h4>
                                 </div>
                                 <div className="collapsible-body center">
-                                    <p className="flow-text">If you've won, please pick up your prizes at the prize desk'</p>
+                                    <p className="flow-text">If you've won, please pick up your prizes at the prize desk</p>
                                     <LedgerPrizeContainer {...this.props} />
                                     <TshirtPrizeContainer {...this.props} />
                                     <DappBookPrizeContainer {...this.props} />
