@@ -7,7 +7,7 @@ export const DappBookContractState = new Mongo.Collection('dappBookContractState
 
 // Constructor parameters
 const prizeName = 'dappBook';
-const numPrizes = 5;
+const numPrizes = 2;
 
 const stages = {
     0: 'Registration',

@@ -31,7 +31,7 @@ class Header extends React.Component {
     return (
           <nav style={navStyle}>
             <div className="nav-wrapper">
-              <NavLink to="/" className="brand-logo left">Jailbreak Raffle Dapp</NavLink>
+              <NavLink to="/" className="brand-logo left">Tech Talk Raffle Dapp</NavLink>
               <a href="#" data-activates="mobile-demo" className="button-collapse right"><i className="material-icons">menu</i></a>
               {this.props.currentUser && this.props.currentUser._id ? 
               <ul className="side-nav" id="mobile-demo">

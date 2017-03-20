@@ -7,7 +7,7 @@ export const MakersBookContractState = new Mongo.Collection('makersBookContractS
 
 // Constructor parameters
 const prizeName = 'makersBook';
-const numPrizes = 5;
+const numPrizes = 1;
 
 const stages = {
     0: 'Registration',

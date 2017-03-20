@@ -1,6 +1,6 @@
-
 let RaffleLedger = artifacts.require('./RaffleLedger.sol');
 let RaffleTshirt = artifacts.require('./RaffleTshirt.sol');
+let RaffleTbpTshirt = artifacts.require('./RaffleTbpTshirt.sol');
 let RaffleGraphBook = artifacts.require('./RaffleGraphBook.sol');
 let RaffleInternetBook = artifacts.require('./RaffleInternetBook.sol');
 let RaffleDappBook = artifacts.require('./RaffleDappBook.sol');
@@ -11,6 +11,10 @@ const prizes = {
   tshirt: {
     name: 'Novetta T-shirt',
     number: 5,
+  },
+  tbpTshirt: {
+    name: 'The Bitcoin Podcast T-shirt',
+    number: 2,
   },
   ledger: {
     name: 'Ledger Nano',
@@ -40,6 +44,7 @@ const prizes = {
 
 module.exports = function(deployer) {
   deployer.deploy(RaffleTshirt, prizes.tshirt.name, prizes.tshirt.number);
+  deployer.deploy(RaffleTbpTshirt, prizes.tbpTshirt.name, prizes.tbpTshirt.number);
   deployer.deploy(RaffleBitcoinBook, prizes.bitcoinBook.name, prizes.bitcoinBook.number);
   deployer.deploy(RaffleDappBook, prizes.dappBook.name, prizes.dappBook.number);
   deployer.deploy(RaffleGraphBook, prizes.graphBook.name, prizes.graphBook.number);

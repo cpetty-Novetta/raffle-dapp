@@ -7,7 +7,7 @@ export const GraphBookContractState = new Mongo.Collection('graphBookContractSta
 
 // Constructor parameters
 const prizeName = 'graphBook';
-const numPrizes = 5;
+const numPrizes = 2;
 
 const stages = {
     0: 'Registration',

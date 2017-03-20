@@ -10,6 +10,8 @@ let LedgerInstance = contract(ledger_json);
 LedgerInstance.setProvider(provider);
 let TshirtInstance = contract(tshirt_json);
 TshirtInstance.setProvider(provider);
+let TbpTshirtInstance = contract(tbpTshirt_json);
+TbpTshirtInstance.setProvider(provider);
 let BitcoinBookInstance = contract(bitcoinBook_json);
 BitcoinBookInstance.setProvider(provider);
 let DappBookInstance = contract(dappBook_json);
@@ -51,6 +53,13 @@ export default class DistributePrizes extends Component {
             return instance.closeRegistration({from: web3.eth.accounts[0]})
         }).then(function(result) {
             console.log("Tshirt closeRegistration Result: ", result)
+            // Meteor.call('user.isMining', Meteor.userId(), false);
+        })
+        TbpTshirtInstance.deployed().then(function(instance) {
+            // Meteor.call('user.isMining', Meteor.userId(), true);
+            return instance.closeRegistration({from: web3.eth.accounts[0]})
+        }).then(function(result) {
+            console.log("Tbp Tshirt closeRegistration Result: ", result)
             // Meteor.call('user.isMining', Meteor.userId(), false);
         })
         BitcoinBookInstance.deployed().then(function(instance) {
@@ -106,6 +115,15 @@ export default class DistributePrizes extends Component {
         }).then(function(result) {
             Meteor.call('user.isMining', Meteor.userId(), false);
             console.log("Tshirt distributePrizes Result: ", result)
+        })
+    }
+    distributeTbpTshirtPrizes() {
+        TbpTshirtInstance.deployed().then(function(instance) {
+            // Meteor.call('user.isMining', Meteor.userId(), true);
+            return instance.distributePrizes({from: web3.eth.accounts[0], gas: 3000000})
+        }).then(function(result) {
+            Meteor.call('user.isMining', Meteor.userId(), false);
+            console.log("TbptTshirt distributePrizes Result: ", result)
         })
     }
     distributeBitcoinBookPrizes() {
@@ -174,6 +192,14 @@ export default class DistributePrizes extends Component {
                     </div> : 
                     <div className="row center" >
                         <button className="waves-effect waves-light btn disabled" >Distribute Tshirt Prizes</button>
+                    </div>
+                }
+                {this.props.tbpTshirtContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn  blue lighten-2" onClick={this.distributeTbpTshirtPrizes.bind(this)}>Distribute TBP Tshirt Prizes</button>
+                    </div> : 
+                    <div className="row center" >
+                        <button className="waves-effect waves-light btn disabled" >Distribute TBP Tshirt Prizes</button>
                     </div>
                 }
                 {this.props.bitcoinBookContractState[0].currentStage === "Distribution" && !this.props.currentUser.isMining ?

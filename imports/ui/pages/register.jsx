@@ -98,7 +98,7 @@ class Register extends React.Component {
                 <div className="card blue lighten-1 center">
                     <div className="card-content white-text">
                     
-                    <p className="flow-text">Welcome to the Jailbreak Raffle Decentralized Application (dApp)!</p>
+                    <p className="flow-text">Welcome to the Tech Talk Raffle Decentralized Application (dApp)!</p>
                     <p className="flow-text spacer">Please register for tickets to enter into the Raffle, the more information you provide, the more tickets you recieve.</p>
                     </div>
                 </div>

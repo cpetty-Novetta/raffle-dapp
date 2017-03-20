@@ -1,6 +1,6 @@
 pragma solidity ^0.4.2;
 
-contract RaffleMakersBook {
+contract RaffleTbpTshirt {
     //////////////////////////////////////////////////////////
     //   Contract Contsruction
     //////////////////////////////////////////////////////////
@@ -8,7 +8,7 @@ contract RaffleMakersBook {
     uint public numPrizes;
     event raffleInitiated(string _prizeName, uint _numprizes);
 
-    function RaffleMakersBook(string _prizeName, uint _numPrizes) {
+    function RaffleTbpTshirt(string _prizeName, uint _numPrizes) {
         prizeName = _prizeName;
         numPrizes = _numPrizes;
         raffleInitiated(prizeName, numPrizes);

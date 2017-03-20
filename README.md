@@ -1,5 +1,5 @@
 # raffle-dapp
-Jailbreak Raffle Dapp
+Tech Talk Raffle Dapp
 
 # The ethereum truffle environment is in the `/imports/smart-contracts/` directory. 
 If you're running the ethereumjs-testrpc, then you need to cd into that directory and `truffle migrate --reset` to deploy the contracts and create the new artifacts so that truffle-contract can find them.  If you're using a private node on geth/parity/etc then the contracts will persist, as well as ropsten or the main net.  

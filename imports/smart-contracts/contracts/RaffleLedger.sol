@@ -114,7 +114,7 @@ contract RaffleLedger {
         return random_number;
     }
     
-    function randomChoiceFromticketPool() internal returns(uint choice) {
+    function randomChoiceFromticketPool() internal returns(uint) {
         uint rand_index = generate_random(ticketPool.length, 'salting');
         uint winningIndex = ticketPool[rand_index];
         remove(rand_index);

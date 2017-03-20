@@ -10,6 +10,9 @@ export default class RaffleStats extends Component {
         let myTshirtTickets = this.props.tshirtRegisteredTickets.filter((ticket) => {
             if(ticket.address == this.props.currentUser.account) return ticket;
         })
+        let myTbpTshirtTickets = this.props.tbpTshirtRegisteredTickets.filter((ticket) => {
+            if(ticket.address == this.props.currentUser.account) return ticket;
+        })
         let myGraphBookTickets = this.props.graphBookRegisteredTickets.filter((ticket) => {
             if(ticket.address == this.props.currentUser.account) return ticket;
         })
@@ -47,6 +50,10 @@ export default class RaffleStats extends Component {
                             <PrizeStats
                                 myTickets={myTshirtTickets}
                                 contractState={this.props.tshirtContractState[0]}
+                            />
+                            <PrizeStats
+                                myTickets={myTbpTshirtTickets}
+                                contractState={this.props.tbpTshirtContractState[0]}
                             />
                             <PrizeStats
                                 myTickets={myBitcoinBookTickets}

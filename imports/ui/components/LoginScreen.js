@@ -95,7 +95,7 @@ export default class LoginScreen extends Component {
           </div>
           <div className='elHeaderTitle'>
             <div style={style_headerTitle}>
-              <div>Jailbreak Raffle</div>
+              <div>Tech Talk Raffle</div>
             </div>
           
           </div>

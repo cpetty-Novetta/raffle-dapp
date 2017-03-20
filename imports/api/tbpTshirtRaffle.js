@@ -2,11 +2,11 @@ import { Meteor } from 'meteor/meteor';
 import { check } from 'meteor/check';
 import { Mongo } from 'meteor/mongo';
 
-export const BitcoinBookRegisteredTickets = new Mongo.Collection('bitcoinBookRegisteredTickets');
-export const BitcoinBookContractState = new Mongo.Collection('bitcoinBookContractState');
+export const TbpTshirtRegisteredTickets = new Mongo.Collection('tbpTshirtRegisteredTickets');
+export const TbpTshirtContractState = new Mongo.Collection('tbpTshirtContractState');
 
 // Constructor parameters
-const prizeName = 'bitcoinBook';
+const prizeName = 'tbpTshirt';
 const numPrizes = 2;
 
 const stages = {
@@ -17,11 +17,11 @@ const stages = {
 
 if (Meteor.isServer) {
     // Publications to client
-     Meteor.publish('bitcoinBookContractState', function bitcoinBookContractStatePublication() {
-         return BitcoinBookContractState.find({_id: "contractState"})
+     Meteor.publish('tbpTshirtContractState', function tbpTshirtContractStatePublication() {
+         return TbpTshirtContractState.find({_id: "contractState"})
      })
-     Meteor.publish('bitcoinBookRegisteredTickets', function bitcoinBookRegisteredTicketsPublication() {
-         return BitcoinBookRegisteredTickets.find();
+     Meteor.publish('tbpTshirtRegisteredTickets', function tshirtRegisteredTicketsPublication() {
+         return TbpTshirtRegisteredTickets.find();
      });
      
 
@@ -30,7 +30,7 @@ if (Meteor.isServer) {
         return (userId && adminUser && userId === adminUser._id);
     }
 
-    BitcoinBookContractState.allow({
+    TbpTshirtContractState.allow({
         insert: function(userId, lugar){
             return adminUser(userId);
         },
@@ -42,8 +42,8 @@ if (Meteor.isServer) {
         }
     });
 
-    var bitcoinBookEvents = BitcoinBookWeb3Instance.allEvents({from: 0, toBlock: 'latest'});
-    bitcoinBookEvents.watch( Meteor.bindEnvironment(function( err, result ) {
+    var tbpTshirtEvents = TbpTshirtWeb3Instance.allEvents({from: 0, toBlock: 'latest'});
+    tbpTshirtEvents.watch( Meteor.bindEnvironment(function( err, result ) {
     if (err) {
         console.log(err);
     }
@@ -55,36 +55,36 @@ if (Meteor.isServer) {
             const username = result.args._username.valueOf();
             const numTicketsTotal = result.args._numTicketsTotal.valueOf();
             const numUsersTotal = result.args._numUsersTotal.valueOf();
-            console.log("Adding BitcoinBook ticket", ticketId, " to the database");
+            console.log("Adding TBP Tshirt ticket", ticketId, " to the database");
             
-            BitcoinBookRegisteredTickets.update(
+            TbpTshirtRegisteredTickets.update(
                 ticketId, 
                 { address: address,
                 username: username },
                 { upsert: true }
             )
-            BitcoinBookContractState.update(
+            TbpTshirtContractState.update(
                 'contractState',
                 { $set: {
                     numTicketsTotal: numTicketsTotal,
                     numUsersTotal: numUsersTotal,
-                    address: bitcoinBook_address,
+                    address: tbpTshirt_address,
                 }},
                 { upsert: true }
             )
         } else if (result['event'] == 'stageChanged') {
             const currentStage = stages[result.args._stage.valueOf()];
-            BitcoinBookContractState.update(
+            TbpTshirtContractState.update(
                 "contractState",
                 { $set: { currentStage: currentStage }},
                 {upsert: true}
             )
-            console.log("Set BitcoinBook contract stage to ", currentStage);
+            console.log("Set TBP Tshirt contract stage to ", currentStage);
             
         } else if (result['event'] == 'prizeWon') {
             const prizeWon = result.args._prize.valueOf();
             const ticketId = result.args._ticketId.valueOf();
-            BitcoinBookRegisteredTickets.update(
+            TbpTshirtRegisteredTickets.update(
                 ticketId,
                 { $set: { prize: prizeWon, winner: true } }
             )
@@ -92,22 +92,22 @@ if (Meteor.isServer) {
         } else if (result['event'] == "raffleInitiated") {
             const prizeName = result.args._prizeName.valueOf();
             const numPrizes = result.args._numPrizes.valueOf();
-            BitcoinBookContractState.update(
+            TbpTshirtContractState.update(
                 'constractState',
                 { $set: { 
                     prizeName: prizeName,
                     numPrizes: numPrizes,
                 }}
             )
-            console.log('recording bitcoinBook raffle initiation state')
+            console.log('recording TBP tshirt raffle initiation state')
         }
     }));
 }
 
 Meteor.methods({
-   'updateBitcoinBookStage'() {
-       BitcoinBookWeb3Instance.getStage(Meteor.bindEnvironment(function(err, stage) {
-            BitcoinBookContractState.update('contractState',
+   'updateTbpTshirtStage'() {
+       TbpTshirtWeb3Instance.getStage(Meteor.bindEnvironment(function(err, stage) {
+            TbpTshirtContractState.update('contractState',
                 { $set: { currentStage: stages[stage.valueOf()]} }
             )
         }))

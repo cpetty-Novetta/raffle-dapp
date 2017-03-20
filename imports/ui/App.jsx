@@ -6,6 +6,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 
 import { LedgerRegisteredTickets, LedgerContractState } from '/imports/api/ledgerRaffle.js';
 import { TshirtRegisteredTickets, TshirtContractState } from '/imports/api/tshirtRaffle.js';
+import { TbpTshirtRegisteredTickets, TbpTshirtContractState } from '/imports/api/tbpTshirtRaffle.js';
 import { BitcoinBookContractState, BitcoinBookRegisteredTickets } from '/imports/api/bitcoinBookRaffle.js';
 import { GraphBookContractState, GraphBookRegisteredTickets } from '/imports/api/graphBookRaffle.js';
 import { DappBookContractState, DappBookRegisteredTickets } from '/imports/api/dappBookRaffle.js';
@@ -19,6 +20,7 @@ import RegisterForTickets from '/imports/ui/components/RegisterForTickets';
 import DistributePrizes from '/imports/ui/components/DistributePrizes';
 import PrizeWon from '/imports/ui/components/PrizeWon';
 import TshirtPrizeContainer from '/imports/ui/containers/TshirtPrizeContainer';
+import TbpTshirtPrizeContainer from '/imports/ui/containers/TbpTshirtPrizeContainer';
 import DappBookPrizeContainer from '/imports/ui/containers/DappBookPrizeContainer';
 import BitcoinBookPrizeContainer from'/imports/ui/containers/BitcoinBookPrizeContainer';
 import GraphBookPrizeContainer from '/imports/ui/containers/GraphBookPrizeContainer';
@@ -118,6 +120,7 @@ class App extends Component {
                                     <p className="flow-text">If you've won, please pick up your prizes at the prize desk</p>
                                     <LedgerPrizeContainer {...this.props} />
                                     <TshirtPrizeContainer {...this.props} />
+                                    <TbpTshirtPrizeContainer {...this.props} />
                                     <DappBookPrizeContainer {...this.props} />
                                     <BitcoinBookPrizeContainer {...this.props} />
                                     <GraphBookPrizeContainer {...this.props} />
@@ -163,6 +166,8 @@ export default createContainer(() => {
     const stateHandle = Meteor.subscribe('ledgerContractState');
     const tshirtHandle = Meteor.subscribe('tshirtContractState');
     const tshirtTicketHandle = Meteor.subscribe('tshirtRegisteredTickets');
+    const tbpTshirtHandle = Meteor.subscribe('tbpTshirtContractState');
+    const tbpTshirtTicketHandle = Meteor.subscribe('tbpTshirtRegisteredTickets');
     const bitcoinBookHandle = Meteor.subscribe('bitcoinBookContractState');
     const graphBookHandle = Meteor.subscribe('graphBookContractState');
     const dappBookHandle = Meteor.subscribe('dappBookContractState');
@@ -178,6 +183,7 @@ export default createContainer(() => {
         currentUser: Meteor.user(),
         ledgerRegisteredTickets: LedgerRegisteredTickets.find({}).fetch(),
         tshirtRegisteredTickets: TshirtRegisteredTickets.find({}).fetch(),
+        tbpTshirtRegisteredTickets: TbpTshirtRegisteredTickets.find({}).fetch(),
         bitcoinBookRegisteredTickets: BitcoinBookRegisteredTickets.find({}).fetch(),
         graphBookRegisteredTickets: GraphBookRegisteredTickets.find({}).fetch(),
         dappBookRegisteredTickets: DappBookRegisteredTickets.find({}).fetch(),
@@ -187,6 +193,7 @@ export default createContainer(() => {
         userLoaded:  Meteor.user() && handle.ready() && 
             stateHandle.ready() && ticketHandle.ready() && 
             tshirtHandle.ready() && tshirtTicketHandle.ready() &&
+            tbpTshirtHandle.ready() && tbpTshirtTicketHandle.ready() &&
             bitcoinBookHandle.ready() && bitcoinBookTicketHandle.ready() &&
             graphBookHandle.ready() && graphBookTicketHandle.ready() &&
             dappBookHandle.ready() && dappBookTicketHandle.ready() &&
@@ -194,6 +201,7 @@ export default createContainer(() => {
             makersBookHandle.ready() && makersBookTicketHandle.ready(),
         ledgerContractState: LedgerContractState.find({}).fetch(),
         tshirtContractState: TshirtContractState.find({}).fetch(),
+        tbpTshirtContractState: TbpTshirtContractState.find({}).fetch(),
         bitcoinBookContractState: BitcoinBookContractState.find({}).fetch(),
         graphBookContractState: GraphBookContractState.find({}).fetch(),
         dappBookContractState: DappBookContractState.find({}).fetch(),

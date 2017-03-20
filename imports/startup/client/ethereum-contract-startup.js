@@ -57,6 +57,14 @@ tshirt_address = tshirt_json["networks"]["1900"].address
 let TshirtWeb3 = web3.eth.contract(tshirt_abi);
 TshirtWeb3Instance = TshirtWeb3.at(tshirt_address);
 
+tbpTshirt_json = require("/imports/smart-contracts/build/contracts/RaffleTbpTshirt.json");
+tbpTshirt_abi = tbpTshirt_json['abi'];
+tbpTshirt_binary = tbpTshirt_json["unlinked_binary"];
+tbpTshirt_address = tbpTshirt_json["networks"]["1900"].address
+
+let TbpTshirtWeb3 = web3.eth.contract(tbpTshirt_abi);
+TbpTshirtWeb3Instance = TbpTshirtWeb3.at(tbpTshirt_address);
+
 bitcoinBook_json = require("/imports/smart-contracts/build/contracts/RaffleBitcoinBook.json");
 bitcoinBook_abi = bitcoinBook_json['abi'];
 bitcoinBook_binary = bitcoinBook_json["unlinked_binary"];

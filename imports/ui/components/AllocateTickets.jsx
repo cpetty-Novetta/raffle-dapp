@@ -15,6 +15,7 @@ export default class RegisterForTickets extends Component {
             numTicketsAllocated: 0,
             ledgerTickets: 0,
             tshirtTickets: 0,
+            tbpTshirtTickets: 0,
             bitcoinBookTickets: 0,
             graphBookTickets: 0,
             internetBookTickets: 0,
@@ -43,6 +44,16 @@ export default class RegisterForTickets extends Component {
     removeTshirtTicket() {
         if (this.state.tshirtTickets !== 0 && this.props.currentUser.numEarnedTickets - this.state.numTicketsAllocated >= 0) {
             this.setState({tshirtTickets: this.state.tshirtTickets - 1, numTicketsAllocated: this.state.numTicketsAllocated - 1,})
+        }
+    }
+    addTbpTshirtTicket() {
+        if (this.state.tbpTshirtTickets < this.props.currentUser.numEarnedTickets && this.props.currentUser.numEarnedTickets - this.state.numTicketsAllocated > 0) {
+            this.setState({tbpTshirtTickets: this.state.tbpTshirtTickets + 1, numTicketsAllocated: this.state.numTicketsAllocated + 1,})
+        }
+    }
+    removeTbpTshirtTicket() {
+        if (this.state.tbpTshirtTickets !== 0 && this.props.currentUser.numEarnedTickets - this.state.numTicketsAllocated >= 0) {
+            this.setState({tbpTshirtTickets: this.state.tbpTshirtTickets - 1, numTicketsAllocated: this.state.numTicketsAllocated - 1,})
         }
     }
     addBitcoinBookTicket() {
@@ -126,6 +137,12 @@ export default class RegisterForTickets extends Component {
                 dataTypes: ["string", "address", "uint"],
                 inputs: [username, userAddress, this.state.tshirtTickets],
             },
+            registerTbpTshirtTicketsToUser: {
+                raffle: "The Bitcoin Podcast T-shirt",
+                name: "registerTicketsToUser",
+                dataTypes: ["string", "address", "uint"],
+                inputs: [username, userAddress, this.state.tbpTshirtTickets],
+            },
             registerBitcoinBookTicketsToUser: {
                 raffle: "Mastering Bitcoin",
                 name: "registerTicketsToUser",
@@ -161,8 +178,9 @@ export default class RegisterForTickets extends Component {
         this.sendTx(contractState.registerDappBookTicketsToUser, dappBook_address, nonce + 4);
         this.sendTx(contractState.registerInternetBookTicketsToUser, internetBook_address, nonce + 5);
         this.sendTx(contractState.registerMakersBookTicketsToUser, makersBook_address, nonce + 6);
+        this.sendTx(contractState.registerTbpTshirtTicketsToUser, tbpTshirt_address, nonce + 7);
         
-        Meteor.call('user.increaseNonce', this.props.currentUser._id, nonce + 6)
+        Meteor.call('user.increaseNonce', this.props.currentUser._id, nonce + 7)
         Meteor.call('user.updateTicketsRegistered', this.props.currentUser._id, this.state.numTicketsAllocated)
         Meteor.call('user.setRegistered', this.props.currentUser._id, 'isRegistered', true);
 
@@ -246,6 +264,23 @@ export default class RegisterForTickets extends Component {
                             <div className="card-button-div col s2 valign">
                                 <button className="btn-floating btn-small waves-effect waves-light blue lighten-1" onClick={this.addTshirtTicket.bind(this)}><i className="material-icons">add</i></button>
                                 <button className="btn-floating btn-small waves-effect waves-light blue lighten-1" onClick={this.removeTshirtTicket.bind(this)}><i className="material-icons">remove</i></button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col s12 m6">
+                        <div className="card">
+                            <div className="row valign-wrapper">
+                            <div className="card-image-div col s4 center">
+                                <img className="responsive-img valign" src="/img/tbpTshirt.jpg"/>
+                            </div>
+                            <div className="card-content-div col s6 center valign">
+                                <p className="flow-text">The Bitcoin Podcast Tshirt</p>
+                                <p className="flow-text">Tickets: {this.state.tbpTshirtTickets}</p>
+                            </div>
+                            <div className="card-button-div col s2 valign">
+                                <button className="btn-floating btn-small waves-effect waves-light blue lighten-1" onClick={this.addTbpTshirtTicket.bind(this)}><i className="material-icons">add</i></button>
+                                <button className="btn-floating btn-small waves-effect waves-light blue lighten-1" onClick={this.removeTbpTshirtTicket.bind(this)}><i className="material-icons">remove</i></button>
                             </div>
                             </div>
                         </div>

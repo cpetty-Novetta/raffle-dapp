@@ -5,6 +5,7 @@ import '/imports/startup/server/ethereum-contract-startup-server';
 import '/imports/api/users.js';
 import '/imports/api/ledgerRaffle.js';
 import '/imports/api/tshirtRaffle.js';
+import '/imports/api/tbpTshirtRaffle.js';
 import '/imports/api/bitcoinBookRaffle.js';
 import '/imports/api/graphBookRaffle.js';
 import '/imports/api/internetBookRaffle.js';
@@ -13,6 +14,7 @@ import '/imports/api/makersBookRaffle.js';
 
 import { LedgerContractState } from '/imports/api/ledgerRaffle.js'
 import { TshirtContractState } from '/imports/api/tshirtRaffle.js';
+import { TbpTshirtContractState } from '/imports/api/tbpTshirtRaffle.js';
 import { BitcoinBookContractState } from '/imports/api/bitcoinBookRaffle.js';
 import { GraphBookContractState } from '/imports/api/graphBookRaffle.js';
 import { DappBookContractState } from '/imports/api/dappBookRaffle.js';
@@ -68,6 +70,25 @@ Meteor.startup(() => {
         const prizeName = _prizeName.valueOf()
         console.log("Getting name of prize: ", prizeName)
         TshirtContractState.update(
+            'contractState',
+            { $set: {prizeName: prizeName} },
+            { upsert: true}
+        )
+    }))
+
+    TbpTshirtWeb3Instance.numPrizes(Meteor.bindEnvironment(function(err, _numPrizes)  {
+        const numPrizes = _numPrizes.valueOf();
+        console.log("Getting number of TBP Tshirt Prizes: ", numPrizes)
+        TbpTshirtContractState.update(
+            'contractState',
+            { $set: {numPrizes: numPrizes} },
+            { upsert: true}
+        )
+    }))
+    TbpTshirtWeb3Instance.prizeName(Meteor.bindEnvironment(function(err, _prizeName)  {
+        const prizeName = _prizeName.valueOf()
+        console.log("Getting name of prize: ", prizeName)
+        TbpTshirtContractState.update(
             'contractState',
             { $set: {prizeName: prizeName} },
             { upsert: true}

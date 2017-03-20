@@ -7,7 +7,7 @@ export const InternetBookContractState = new Mongo.Collection('internetBookContr
 
 // Constructor parameters
 const prizeName = 'internetBook';
-const numPrizes = 5;
+const numPrizes = 2;
 
 const stages = {
     0: 'Registration',
